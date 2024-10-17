@@ -1,0 +1,7 @@
+sphinx
+sphinx-rtd-theme
+sphinx-version-warning
+sphinx-hoverxref
+sphinx-copybutton
+sphinx-favicon
+myst-parser
