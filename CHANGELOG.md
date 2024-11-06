@@ -2,14 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html), limiting the versioning semantics to [this](https://regex101.com/r/4HWpCE/2) custom regular expression.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html), limiting the versioning semantics to major, minor and patch versions.
 
 ## [Unreleased]
 
-## [0.2.1] - 2024-10-30
-
 ### Changed
-- Disabled automatic tagging in `.bumpversion.cfg`.
+- Upgraded `spade`: 3.3.2 → 3.3.3.
+- Replaced `bump2version` for `bump-my-version`.
+
+## Removed
+- Deleted `.bumpversion.cfg` file.
 
 ### Fixed
 - Fixed version typo in `CHANGELOG.md`.
