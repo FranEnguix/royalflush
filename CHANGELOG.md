@@ -6,26 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Changed
-- Upgraded `spade`: 3.3.2 → 3.3.3.
-- Replaced `bump2version` for `bump-my-version`.
+### Added
+- Start the first foundational project structure.
 
-## Removed
-- Deleted `.bumpversion.cfg` file.
+### Changed
+- Upgrade `spade`: 3.3.2 → 3.3.3.
+- Replace `bump2version` for `bump-my-version`.
+
+### Removed
+- Delete `.bumpversion.cfg` file.
 
 ### Fixed
-- Fixed version typo in `CHANGELOG.md`.
+- Fix version numbers in `CHANGELOG.md`.
 
 ## [0.2.0] - 2024-10-17
 
 ### Added
 - Project configuration files.
-- Read The Docs documentation.
+- Add Read The Docs documentation.
 
 ## [0.1.0] - 2024-10-17
 
 ### Added
-- Initial commit
-- PyPI integration [royalflush](https://pypi.org/project/royalflush/).
+- Push initial commit.
+- Add PyPI integration [royalflush](https://pypi.org/project/royalflush/).
 
 
