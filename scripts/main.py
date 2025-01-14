@@ -9,8 +9,6 @@ from aioxmpp import JID
 
 import royalflush
 from royalflush.agent import CoordinatorAgent, LauncherAgent, ObserverAgent
-
-# from macofl.agent.premiofl import AcolAgent
 from royalflush.log import GeneralLogManager, setup_loggers
 
 
@@ -86,18 +84,6 @@ async def main() -> None:
         await launcher.start()
         await asyncio.sleep(0.2)
         logger.info("Launcher initialized.")
-
-        # logger.info("Waiting for coordinator...")
-        # await spade.wait_until_finished(coordinator)
-        # logger.info("Coordinator finished.")
-
-        # logger.info("Waiting for launcher...")
-        # await spade.wait_until_finished(launcher)
-        # logger.info("Launcher finished.")
-
-        # logger.info("Waiting for agents...")
-        # await spade.wait_until_finished(launcher.agents)
-        # logger.info("Agents finished.")
 
         while launcher.is_alive() or any(ag.is_alive() for ag in launcher.agents):
             await asyncio.sleep(5)

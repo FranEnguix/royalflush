@@ -43,7 +43,7 @@ def generate_line_plots(data: pd.DataFrame, unique_layers: List[str]) -> None:
 if __name__ == "__main__":
     # experiment_name: str = "2024_12_12_T_17_00_04_268639_Z"
     experiment_name: str = "2024_12_12_T_12_48_12_365453_Z"
-    file_path: str = f"logs/{experiment_name}/raw/nn_convergence.csv"
+    file_path: str = f"../logs/{experiment_name}/raw/nn_convergence.csv"
     data: pd.DataFrame = load_dataset(file_path)
     data = extract_agent_name(data)
     unique_layers: List[str] = get_unique_layers(data)
