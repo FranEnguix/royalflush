@@ -14,7 +14,7 @@ class Cifar10DataLoaderGenerator(BaseDataLoaderGenerator):
 
     def __init__(
         self,
-        data_dir: str | Path = "downloaded_datasets/cifar10",
+        data_dir: str | Path = "royalflush_datasets/cifar10",
         batch_size: int = 32,
         train_size: float = 0.8,
         transform: None | Compose = None,
@@ -41,7 +41,7 @@ class Cifar100DataLoaderGenerator(BaseDataLoaderGenerator):
 
     def __init__(
         self,
-        data_dir: str | Path = "downloaded_datasets/cifar100",
+        data_dir: str | Path = "royalflush_datasets/cifar100",
         batch_size: int = 32,
         train_size: float = 0.8,
         transform: None | Compose = None,
@@ -68,7 +68,7 @@ class Cifar8DataLoaderGenerator(BaseDataLoaderGenerator):
 
     def __init__(
         self,
-        data_dir: str | Path = "downloaded_datasets/cifar8",
+        data_dir: str | Path = "royalflush_datasets/cifar8",
         batch_size: int = 32,
         train_size: float = 0.8,
         transform: None | Compose = None,

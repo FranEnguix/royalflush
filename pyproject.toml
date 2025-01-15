@@ -7,7 +7,7 @@ name = "royalflush"
 version = "0.2.0"
 description = "Royal FLush is a Python framework specifically designed to facilitate the development, execution and analysis of multi-agent systems (MAS) federated learning (FL) experiments."
 readme = "README.md"
-keywords = ["artificial intelligence", "multi-agent systems", "intelligent agents", "federated learning", "framework"]
+keywords = ["royalflush", "artificial intelligence", "multi-agent systems", "intelligent agents", "federated learning", "framework"]
 license = { file = "LICENSE" }
 authors = [
   { name = "Francisco Enguix", email = "enguix.fco@gmail.com" },

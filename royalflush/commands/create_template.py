@@ -9,7 +9,7 @@ import click
 @click.command(name="create-template")
 @click.argument("template_file", required=False)
 @click.pass_context
-def create_template_cmd(ctx: click.Context, template_file: str) -> None:
+def create_template_cmd(_: click.Context, template_file: str) -> None:
     """
     Create a JSON template for the experiment.
 

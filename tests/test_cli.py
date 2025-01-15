@@ -5,7 +5,7 @@ import unittest
 from click.testing import CliRunner
 
 from royalflush.cli import cli
-from royalflush.datatypes import Experiment
+from royalflush.datatypes import ExperimentRawData
 
 
 class TestCli(unittest.TestCase):
@@ -42,7 +42,7 @@ class TestCli(unittest.TestCase):
         # Load the JSON into the Experiment class
         with open(self.test_filename, "r", encoding="utf-8") as f:
             data = json.load(f)
-        experiment = Experiment.from_json(data)
+        experiment = ExperimentRawData.from_json(data)
 
         # Check if the data was imported correctly
         # algorithm is stored in lowercase in Experiment.__init__()

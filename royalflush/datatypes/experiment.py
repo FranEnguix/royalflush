@@ -1,9 +1,16 @@
 """Experiment model for the RoyalFlush application."""
 
+import uuid
 from typing import Any, Dict, Optional
 
 
 class Experiment:
+    # TODO clean the ExperimentRawData to store the processed values here
+    def __init__(self, uuid4: Optional[str]):
+        self.uuid4 = str(uuid.uuid4()) if uuid4 == "generate_new_uuid4" else uuid4
+
+
+class ExperimentRawData:
     """
     Represents an experiment configuration.
 
@@ -45,7 +52,7 @@ class Experiment:
         self.ann: str = data.get("ann", "")
 
     @classmethod
-    def from_json(cls, json_data: Dict[str, Any]) -> "Experiment":
+    def from_json(cls, json_data: Dict[str, Any]) -> "ExperimentRawData":
         """
         Create an Experiment instance directly from a JSON dictionary.
 

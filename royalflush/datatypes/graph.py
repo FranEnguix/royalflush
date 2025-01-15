@@ -1,5 +1,6 @@
 import random
 from typing import Dict, List
+from uuid import UUID
 
 import networkx as nx
 from aioxmpp import JID
@@ -78,18 +79,98 @@ class GraphManager:
 
         net.show(output_file)
 
-    def get_agents_in_coalition(self, coalition_id: str) -> List[str]:
+    def get_agents_in_coalition(self, coalition_id: str, uuid: UUID | None = None) -> List[str]:
         """
         Retrieve a list of agent names (localparts) that belong to a given coalition.
+        If uuid is provided, '__{uuid}' is appended to each agent's name.
+
+        Args:
+            coalition_id (str): The coalition ID to filter by.
+            uuid (UUID | None): If provided, we append '__{uuid}' to each returned node name.
+
+        Returns:
+            List[str]: List of agent localparts (optionally suffixed with '__{uuid}').
         """
         nodes_with_data: NodeDataView = self.graph.nodes(data=True)
-        return [node for node, data in nodes_with_data if data.get("coalition_id") == str(coalition_id)]
+        agents = [node for node, data in nodes_with_data if data.get("coalition_id") == str(coalition_id)]
+        if not uuid:
+            return agents
+        return [f"{agent}__{uuid}" for agent in agents]
 
-    def list_agents(self) -> List[str]:
+    def list_agents(self, uuid: UUID | None = None) -> List[str]:
         """
         List all agents (nodes) in the graph by their localparts.
+        If uuid is provided, '__{uuid}' is appended to each node name.
         """
-        return list(self.graph.nodes)
+        if not uuid:
+            return list(self.graph.nodes)
+        return [f"{n}__{uuid}" for n in self.graph.nodes]
+
+    def list_agents_with_neighbours(self, uuid: UUID | None = None) -> Dict[str, List[str]]:
+        """
+        Returns a dictionary where each key is the localpart (node) and
+        the value is a list of localparts for its neighbors.
+
+        If uuid is provided, '__{uuid}' is appended to each node name
+        and each neighbour name.
+
+        Example:
+            {
+                "a1": ["a2", "a4"],
+                "a2": ["a1", "a3"],
+                ...
+            }
+        """
+        result: Dict[str, List[str]] = {}
+        for node in self.graph.nodes:
+            neighbours = list(self.graph.neighbors(node))
+            if uuid:
+                # Append __{uuid} to both the key and the neighbors
+                node_key = f"{node}__{uuid}"
+                neigh_list = [f"{nbr}__{uuid}" for nbr in neighbours]
+                result[node_key] = neigh_list
+            else:
+                # No UUID, just return raw localparts
+                result[node] = neighbours
+        return result
+
+    def list_agents_jids(self, uuid: UUID | None = None) -> List[JID]:
+        """
+        Returns a list of JID objects from the 'jid' attribute of each node.
+        If uuid is provided, '__{uuid}' is appended to each localpart name.
+        """
+        nodes_with_data: NodeDataView = self.graph.nodes(data=True)
+        if uuid is None:
+            return [JID.fromstr(data.get("jid")) for _, data in nodes_with_data]
+        result: List[JID] = []
+        for _, data in nodes_with_data:
+            jid = JID.fromstr(data.get("jid"))
+            jid_uuid = JID.fromstr(f"{jid.localpart}__{uuid}@{jid.domain}")
+            result.append(jid_uuid)
+        return result
+
+    def list_agents_jids_with_neighbours(self, uuid: UUID | None = None) -> Dict[JID, List[JID]]:
+        """
+        Returns a dictionary where each key is the JID of a node, and
+        the value is a list of JIDs corresponding to its neighbors.
+        If uuid is provided, '__{uuid}' is appended to each localpart name.
+
+        This relies on the "jid" attribute stored in each node's data.
+        """
+        result: Dict[JID, List[JID]] = {}
+        for node, data in self.graph.nodes(data=True):
+            node_jid = JID.fromstr(data["jid"])
+            if uuid is not None:
+                node_jid = JID.fromstr(f"{node_jid.localpart}__{uuid}@{node_jid.domain}")
+            neighbour_jids: List[JID] = []
+            for neighbour_node in self.graph.neighbors(node):
+                neighbour_data = self.graph.nodes[neighbour_node]
+                neighbour_jid = JID.fromstr(neighbour_data["jid"])
+                if uuid is not None:
+                    neighbour_jid = JID.fromstr(f"{neighbour_jid.localpart}__{uuid}@{neighbour_jid.domain}")
+                neighbour_jids.append(neighbour_jid)
+            result[node_jid] = neighbour_jids
+        return result
 
     def list_connections(self) -> List[tuple]:
         """

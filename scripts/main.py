@@ -1,53 +1,73 @@
+"""Script to run the RoyalFlush experiment."""
+
 import asyncio
+import json
 import logging
 import sys
 import traceback
 import uuid
+from pathlib import Path
+from typing import Any, Dict
 
 import spade
 from aioxmpp import JID
 
 import royalflush
-from royalflush.agent import CoordinatorAgent, LauncherAgent, ObserverAgent
+from royalflush.agent import AgentFactory, CoordinatorAgent, LauncherAgent, ObserverAgent
+from royalflush.datatypes import ExperimentRawData, GraphManager
 from royalflush.log import GeneralLogManager, setup_loggers
 
 
-async def main() -> None:
-    uuid4_enabled = True
-    xmpp_domain = "localhost"
+async def main(experiment: ExperimentRawData) -> None:
+    xmpp_domain = experiment.xmpp_domain
     max_message_size = 250_000  # shall not be close to 262 144
-    number_of_agents = 5
     number_of_observers = 1
 
-    uuid4 = str(uuid.uuid4()) if uuid4_enabled else ""
+    # UUID4
+    uuid4: uuid.UUID | None = None
+    if experiment.uuid4 == "generate_new_uuid4":
+        uuid4 = uuid.uuid4()
+    elif isinstance(experiment.uuid4, str):
+        uuid4 = uuid.UUID(experiment.uuid4)
 
+    # JIDs
+    launcher_jid_str = f"launcher__{uuid4}@{xmpp_domain}"
+    coordinator_jid_str = f"coordinator__{uuid4}@{xmpp_domain}"
+
+    # Logging
     logger = GeneralLogManager(extra_logger_name="main")
-
     logger.info("Starting...")
     logger.info(f"Royal FLush version: {royalflush.__version__}")
     logger.info(f"Python version: {sys.version}")
     logger.info(f"SPADE version: {spade.__version__}")
     logger.info(f"UUID4: {uuid4}")
+    logger.info(f"Experiment details: {repr(experiment)}")
 
-    initial_agents: list[JID] = []
-    for i in range(number_of_agents):
-        initial_agents.append(JID.fromstr(f"a{i}__{uuid4}@{xmpp_domain}"))
+    # Graph
+    logger.debug("Initializating GraphManager...")
+    graph_manager = GraphManager()
+    graph_manager.import_from_gml(experiment.graph_path)
+    logger.debug(f"Graph {experiment.graph_path} loaded")
 
-    observer_jids: list[JID] = []
-    for i in range(number_of_observers):
-        observer_jids.append(JID.fromstr(f"o{i}__{uuid4}@{xmpp_domain}"))
-    observers: list[ObserverAgent] = []
-
-    logger.info("Initializating coordinator...")
+    # Coordinator
+    logger.debug(f"Initializating {coordinator_jid_str} coordinator...")
     coordinator = CoordinatorAgent(
-        jid=f"coordinator__{uuid4}@{xmpp_domain}",
+        jid=coordinator_jid_str,
         password="123",
         max_message_size=max_message_size,
-        coordinated_agents=initial_agents,
+        coordinated_agents=graph_manager.list_agents_jids(uuid=uuid4),
         verify_security=False,
     )
     await asyncio.sleep(0.2)
 
+    # Observers
+    # Observers will come in a future update.
+    logger.debug("Initializating observers...")
+    observer_jids: list[JID] = []
+    for i in range(number_of_observers):
+        observer_jids.append(JID.fromstr(f"o{i}__{uuid4}@{xmpp_domain}"))
+
+    observers: list[ObserverAgent] = []
     for obs_jid in observer_jids:
         obs = ObserverAgent(
             jid=str(obs_jid),
@@ -57,14 +77,26 @@ async def main() -> None:
         )
         observers.append(obs)
 
-    logger.info("Initializating launcher...")
+    # Agent Factory
+    logger.debug("Initializating agents...")
+    agent_factory = AgentFactory(
+        experiment=experiment,
+        graph_manager=graph_manager,
+        coordinator_jid=JID.fromstr(coordinator_jid_str),
+        observer_jids=observer_jids,
+        uuid=uuid4,
+        max_message_size=max_message_size,
+    )
+
+    # Launcher
+    logger.debug(f"Initializating {launcher_jid_str} launcher...")
     launcher = LauncherAgent(
-        jid=f"launcher__{uuid4}@{xmpp_domain}",
+        jid=launcher_jid_str,
         password="123",
         max_message_size=max_message_size,
+        agents=agent_factory.create_agents(),
         agents_coordinator=coordinator.jid,
         agents_observers=observer_jids,
-        agents_to_launch=initial_agents,
         verify_security=False,
     )
 
@@ -80,12 +112,13 @@ async def main() -> None:
         await asyncio.sleep(0.2)
         logger.info("Coordinator initialized.")
 
-        logger.info("Initializing launcher...")
+        logger.info("Starting launcher...")
         await launcher.start()
         await asyncio.sleep(0.2)
         logger.info("Launcher initialized.")
 
-        while launcher.is_alive() or any(ag.is_alive() for ag in launcher.agents):
+        await asyncio.sleep(5)
+        while any(ag.is_alive() for ag in launcher.agents):
             await asyncio.sleep(5)
 
     except KeyboardInterrupt as e:
@@ -109,8 +142,14 @@ async def main() -> None:
 
 if __name__ == "__main__":
     try:
+        file_path: Path = Path("test.json")
+        config_data: Dict[str, Any] = json.loads(file_path.read_text(encoding="utf-8"))
+        experiment = ExperimentRawData.from_json(config_data)
         setup_loggers(general_level=logging.INFO)
-        spade.run(main())
+        spade.run(main(experiment=experiment))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Error loading JSON data: {exc}")
+        traceback.print_exc()
     except KeyboardInterrupt:
         pass
     except Exception:

@@ -161,10 +161,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+.vscode/
 logs/
 notas/
-downloaded_datasets/
-.vscode/
 plots/
-premiofl_datasets/
-premiofl_graphs/
+royalflush_datasets/
+royalflush_graphs/

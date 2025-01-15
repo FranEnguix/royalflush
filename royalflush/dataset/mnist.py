@@ -12,7 +12,7 @@ class MnistDataLoaderGenerator(BaseDataLoaderGenerator):
 
     def __init__(
         self,
-        data_dir: str | Path = "premiofl_datasets/mnist",
+        data_dir: str | Path = "royalflush_datasets/mnist",
         batch_size: int = 64,
         train_size: float = 0.8,
         transform: Optional[Compose] = None,
