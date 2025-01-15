@@ -6,11 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-10-17
+
 ### Added
 - Start the first foundational project structure.
+- Functional minimal version with templates.
 
 ### Changed
-- Upgrade `spade`: 3.3.2 → 3.3.3.
 - Replace `bump2version` for `bump-my-version`.
 
 ### Removed
