@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [0.3.0] - 2024-10-17
+## [0.3.0] - 2025-01-15
 
 ### Added
 - Start the first foundational project structure.
