@@ -1,6 +1,5 @@
 from aioxmpp import JID
 
-from ..behaviour.launcher import LaunchAgentsBehaviour, Wait
 from .base import AgentBase
 from .premiofl.base import PremioFlAgent
 
@@ -31,6 +30,8 @@ class LauncherAgent(AgentBase):
         self.logger.debug(f"Agents to launch: {[a.jid.bare() for a in self.agents]}")
 
     async def setup(self) -> None:
+        from ..behaviour.launcher import LaunchAgentsBehaviour, Wait
+
         self.setup_presence_handlers()
         self.presence.set_available()
         self.add_behaviour(LaunchAgentsBehaviour())

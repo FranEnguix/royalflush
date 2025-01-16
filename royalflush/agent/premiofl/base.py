@@ -1,16 +1,12 @@
 from abc import ABCMeta, abstractmethod
 from queue import Queue
-from typing import OrderedDict
+from typing import TYPE_CHECKING, Optional, OrderedDict
 
 from aioxmpp import JID
-from spade.behaviour import CyclicBehaviour
 from spade.message import Message
 from spade.template import Template
 from torch import Tensor
 
-from royalflush.behaviour.premiofl.fsm import PremioFsmBehaviour
-from royalflush.behaviour.premiofl.layer_receiver import LayerReceiverBehaviour
-from royalflush.behaviour.premiofl.similarity_receiver import SimilarityReceiverBehaviour
 from royalflush.datatypes.consensus import Consensus
 from royalflush.datatypes.consensus_manager import ConsensusManager
 from royalflush.datatypes.models import ModelManager
@@ -21,6 +17,9 @@ from royalflush.similarity.similarity_manager import SimilarityManager
 from royalflush.similarity.similarity_vector import SimilarityVector
 
 from ..base import AgentNodeBase
+
+if TYPE_CHECKING:
+    from spade.behaviour import CyclicBehaviour
 
 
 class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
@@ -41,6 +40,10 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         web_port: int = 10000,
         verify_security: bool = False,
     ):
+        from royalflush.behaviour.premiofl.fsm import PremioFsmBehaviour
+        from royalflush.behaviour.premiofl.layer_receiver import LayerReceiverBehaviour
+        from royalflush.behaviour.premiofl.similarity_receiver import SimilarityReceiverBehaviour
+
         extra_name = f"agent.{JID.fromstr(jid).localpart}"
         self.consensus_manager = consensus_manager
         self.model_manager = model_manager
@@ -151,7 +154,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         vector: SimilarityVector,
         thread: None | str = None,
         metadata: None | dict[str, str] = None,
-        behaviour: None | CyclicBehaviour = None,
+        behaviour: Optional["CyclicBehaviour"] = None,
     ) -> None:
         msg = vector.to_message()
         msg.sender = str(self.jid.bare())
@@ -168,7 +171,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         layers: OrderedDict[str, Tensor],
         thread: None | str = None,
         metadata: None | dict[str, str] = None,
-        behaviour: None | CyclicBehaviour = None,
+        behaviour: Optional["CyclicBehaviour"] = None,
     ) -> None:
         ct = Consensus(layers=layers, sender=self.jid, request_reply=request_reply)
         msg = ct.to_message()
@@ -179,7 +182,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         tag = "-REQREPLY" if request_reply else ""
         await self.__send_message(message=msg, behaviour=behaviour, log_tag=f"-LAYERS{tag}")
 
-    async def __send_message(self, message: Message, behaviour: CyclicBehaviour, log_tag: str = "") -> None:
+    async def __send_message(self, message: Message, behaviour: "CyclicBehaviour", log_tag: str = "") -> None:
         await self.send(message=message, behaviour=behaviour)
         self.message_logger.log(
             current_round=self.current_round,

@@ -1,8 +1,12 @@
+from typing import TYPE_CHECKING
+
 from aioxmpp import JID
 from spade.template import Template
 
 from ..agent import AgentBase
-from ..behaviour.observer import ObserverBehaviour
+
+if TYPE_CHECKING:
+    from ..behaviour.observer import ObserverBehaviour
 
 
 class ObserverAgent(AgentBase):
@@ -17,7 +21,7 @@ class ObserverAgent(AgentBase):
         verify_security: bool = False,
     ):
         self.agents_observed: list[JID] = []
-        self.observation_theme_behaviours: dict[str, None | ObserverBehaviour] = {
+        self.observation_theme_behaviours: dict[str, None | "ObserverBehaviour"] = {
             "message": None,
             "nn": None,
             "iteration": None,
@@ -32,6 +36,8 @@ class ObserverAgent(AgentBase):
         )
 
     async def setup(self) -> None:
+        from ..behaviour.observer import ObserverBehaviour
+
         await super().setup()
         for theme in self.observation_theme_behaviours:
             template = Template(metadata={"rf.observe": theme})

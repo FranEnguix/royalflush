@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional, OrderedDict
+from typing import TYPE_CHECKING, OrderedDict
 
 from aioxmpp import JID
 from spade.behaviour import CyclicBehaviour

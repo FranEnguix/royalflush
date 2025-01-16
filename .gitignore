@@ -162,6 +162,7 @@ cython_debug/
 #.idea/
 
 .vscode/
+.env_test/
 logs/
 notas/
 plots/

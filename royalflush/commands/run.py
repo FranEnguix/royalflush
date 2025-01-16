@@ -13,13 +13,14 @@ import click
 import spade
 from aioxmpp import JID
 
-import royalflush
 from royalflush.agent import AgentFactory, CoordinatorAgent, LauncherAgent, ObserverAgent
 from royalflush.datatypes import ExperimentRawData, GraphManager
 from royalflush.log import GeneralLogManager, setup_loggers
 
 
 async def main(experiment: ExperimentRawData) -> None:
+    from royalflush import __version__
+
     xmpp_domain = experiment.xmpp_domain
     max_message_size = 250_000  # shall not be close to 262 144
     number_of_observers = 1
@@ -38,7 +39,7 @@ async def main(experiment: ExperimentRawData) -> None:
     # Logging
     logger = GeneralLogManager(extra_logger_name="main")
     logger.info("Starting...")
-    logger.info(f"Royal FLush version: {royalflush.__version__}")
+    logger.info(f"Royal FLush version: {__version__}")
     logger.info(f"Python version: {sys.version}")
     logger.info(f"SPADE version: {spade.__version__}")
     logger.info(f"UUID4: {uuid4}")

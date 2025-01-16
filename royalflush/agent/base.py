@@ -1,17 +1,21 @@
 import traceback
+from typing import TYPE_CHECKING, Optional
 
 from aioxmpp import JID, PresenceType
 from aioxmpp.stanza import Presence
 from spade.agent import Agent
-from spade.behaviour import CyclicBehaviour
 from spade.message import Message
 from spade.template import Template
 
-from ..behaviour.coordination import PresenceNodeFSM
 from ..log.general import GeneralLogManager
 from ..log.message import MessageLogManager
 from ..message.message import RfMessage
 from ..message.multipart import MultipartHandler
+
+if TYPE_CHECKING:
+    from spade.behaviour import CyclicBehaviour
+
+    from ..behaviour.coordination import PresenceNodeFSM
 
 
 class AgentBase(Agent):
@@ -36,7 +40,7 @@ class AgentBase(Agent):
     async def setup(self) -> None:
         self.setup_presence_handlers()
 
-    async def send(self, message: Message, behaviour: None | CyclicBehaviour = None) -> None:
+    async def send(self, message: Message, behaviour: Optional["CyclicBehaviour"] = None) -> None:
         messages = self._multipart_handler.generate_multipart_messages(
             content=message.body,
             max_size=self.max_message_size,
@@ -53,7 +57,7 @@ class AgentBase(Agent):
                     f.result()
             self.logger.debug(f"Message ({msg.sender.bare()}) -> ({msg.to.bare()}): {msg.body}")
 
-    async def receive(self, behaviour: CyclicBehaviour, timeout: None | float = 0) -> RfMessage | None:
+    async def receive(self, behaviour: "CyclicBehaviour", timeout: None | float = 0) -> RfMessage | None:
         """
         Put a behaviour start listening to messages using the MultipartHandler class.
         If a message arrives, this function returns the message, otherwise returns None.
@@ -120,16 +124,17 @@ class AgentNodeBase(AgentBase):
         observers: None | list[JID] = None,
         neighbours: None | list[JID] = None,
         coordinator: None | JID = None,
-        post_coordination_behaviours: None | list[tuple[CyclicBehaviour, Template]] = None,
+        post_coordination_behaviours: None | list[tuple["CyclicBehaviour", Template]] = None,
         web_address: str = "0.0.0.0",
         web_port: int = 10000,
         verify_security: bool = False,
     ):
+
         self.observers = [] if observers is None else observers
         self.neighbours = [] if neighbours is None else neighbours
         self.coordinator = coordinator
         self.post_coordination_behaviours = [] if post_coordination_behaviours is None else post_coordination_behaviours
-        self.coordination_fsm: PresenceNodeFSM | None = None
+        self.coordination_fsm: "PresenceNodeFSM" | None = None
         super().__init__(
             jid=jid,
             password=password,
@@ -140,6 +145,8 @@ class AgentNodeBase(AgentBase):
         )
 
     async def setup(self) -> None:
+        from ..behaviour.coordination import PresenceNodeFSM
+
         await super().setup()
         if self.coordinator is not None:
             self.coordination_fsm = PresenceNodeFSM(self.coordinator)
@@ -204,7 +211,7 @@ class CoalitionAgentNodeBase(AgentNodeBase):
         neighbours: None | list[JID] = None,
         coalitions: None | dict[int, JID] = None,
         coordinator: None | JID = None,
-        post_coordination_behaviours: None | list[tuple[CyclicBehaviour, Template]] = None,
+        post_coordination_behaviours: None | list[tuple["CyclicBehaviour", Template]] = None,
         web_address: str = "0.0.0.0",
         web_port: int = 10000,
         verify_security: bool = False,

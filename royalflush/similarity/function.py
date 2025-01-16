@@ -1,6 +1,5 @@
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
-from typing import OrderedDict
 
 import torch
 from torch import Tensor
