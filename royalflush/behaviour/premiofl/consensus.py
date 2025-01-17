@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING
 from spade.behaviour import State
 
 if TYPE_CHECKING:
-    from ...agent.premiofl.base import PremioFlAgent
+    from ...agent.base import PremioFlAgent
 
 
 class ConsensusState(State):
     def __init__(self) -> None:
-        self.agent: PremioFlAgent
+        self.agent: "PremioFlAgent"
         super().__init__()
 
     async def run(self) -> None:

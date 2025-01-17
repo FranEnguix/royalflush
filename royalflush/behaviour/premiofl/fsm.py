@@ -7,13 +7,13 @@ from .consensus import ConsensusState
 from .train import TrainAndApplyConsensusState
 
 if TYPE_CHECKING:
-    from ...agent.premiofl.base import PremioFlAgent
+    from ...agent.base import PremioFlAgent
 
 
 class PremioFsmBehaviour(FSMBehaviour):
 
     def __init__(self) -> None:
-        self.agent: PremioFlAgent
+        self.agent: "PremioFlAgent"
         self.train_state = TrainAndApplyConsensusState()
         self.send_state = CommunicationState()
         self.consensus_state = ConsensusState()

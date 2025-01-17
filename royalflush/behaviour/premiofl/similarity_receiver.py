@@ -8,13 +8,13 @@ from ...message.message import RfMessage
 from ...similarity.similarity_vector import SimilarityVector
 
 if TYPE_CHECKING:
-    from ...agent.premiofl.base import PremioFlAgent
+    from ...agent.base import PremioFlAgent
 
 
 class SimilarityReceiverBehaviour(CyclicBehaviour):
 
     def __init__(self) -> None:
-        self.agent: PremioFlAgent
+        self.agent: "PremioFlAgent"
         super().__init__()
 
     async def run(self) -> None:

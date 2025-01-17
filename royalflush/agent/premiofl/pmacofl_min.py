@@ -8,7 +8,7 @@ from ...datatypes.consensus_manager import ConsensusManager
 from ...datatypes.models import ModelManager
 from ...similarity.similarity_manager import SimilarityManager
 from ...similarity.similarity_vector import SimilarityVector
-from .base import PremioFlAgent
+from ..base import PremioFlAgent
 
 
 class PmacoflMinAgent(PremioFlAgent):

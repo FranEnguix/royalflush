@@ -6,12 +6,12 @@ from spade.behaviour import State
 from ...datatypes.metrics import ModelMetrics
 
 if TYPE_CHECKING:
-    from ...agent.premiofl.base import PremioFlAgent
+    from ...agent.base import PremioFlAgent
 
 
 class TrainAndApplyConsensusState(State):
     def __init__(self) -> None:
-        self.agent: PremioFlAgent
+        self.agent: "PremioFlAgent"
         super().__init__()
 
     async def on_start(self) -> None:

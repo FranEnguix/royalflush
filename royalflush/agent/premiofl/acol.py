@@ -6,7 +6,7 @@ from torch import Tensor
 
 from royalflush.similarity.similarity_vector import SimilarityVector
 
-from .base import PremioFlAgent
+from ..base import PremioFlAgent
 
 
 class AcolAgent(PremioFlAgent):

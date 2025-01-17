@@ -24,7 +24,7 @@ class AvailableNodeState(State):
 
     async def on_start(self) -> None:
         if self.loops < 1:
-            agent: AgentNodeBase = self.agent
+            agent: "AgentNodeBase" = self.agent
             agent.presence.set_available()
             agent.logger.debug("Available.")
             coordinator = str(self.coordinator.bare())
@@ -35,7 +35,7 @@ class AvailableNodeState(State):
             agent.logger.debug(f"'{message.body}' message sent to {coordinator}.")
 
     async def run(self) -> None:
-        agent: AgentNodeBase = self.agent
+        agent: "AgentNodeBase" = self.agent
         self.set_next_state("available")
         msg = await self.receive(timeout=1)
         if msg and msg.body == "start to subscribe":
@@ -50,7 +50,7 @@ class AvailableNodeState(State):
 class SubscriptionNodeState(State):
 
     def __init__(self, coordinator: JID):
-        self.agent: AgentNodeBase
+        self.agent: "AgentNodeBase"
         self.coordinator = coordinator
         self.loops: int = 0
         self.ready_to_start = False
@@ -59,7 +59,7 @@ class SubscriptionNodeState(State):
     async def on_start(self) -> None:
         if self.loops < 1:
             try:
-                agent: AgentNodeBase = self.agent
+                agent: "AgentNodeBase" = self.agent
                 agent.logger.debug("Subscribing to neighbours...")
                 agent.subscribe_to_neighbours()
             except Exception:
@@ -67,7 +67,7 @@ class SubscriptionNodeState(State):
 
     async def run(self) -> None:
         try:
-            agent: AgentNodeBase = self.agent
+            agent: "AgentNodeBase" = self.agent
             if not self.ready_to_start and agent.is_presence_completed():
                 self.ready_to_start = True
                 coordinator = str(self.coordinator.bare())
@@ -110,7 +110,7 @@ class SubscriptionNodeState(State):
 class PresenceNodeFSM(FSMBehaviour):
 
     def __init__(self, coordinator: JID):
-        self.agent: AgentNodeBase
+        self.agent: "AgentNodeBase"
         self.coordinator = coordinator
         super().__init__()
 
@@ -139,11 +139,11 @@ class AvailableCoordinatorState(State):
 
     async def on_start(self) -> None:
         if self.loops < 1:
-            agent: CoordinatorAgent = self.agent
+            agent: "CoordinatorAgent" = self.agent
             agent.logger.debug(f"AvailableCoordinatorState: {self.ready_agents}.")
 
     async def run(self) -> None:
-        agent: CoordinatorAgent = self.agent
+        agent: "CoordinatorAgent" = self.agent
         self.set_next_state("available")
         if not self._are_all_agents_ready():
             msg = await self.receive(timeout=3)
@@ -180,11 +180,11 @@ class SubscriptionCoordinatorState(State):
 
     async def on_start(self) -> None:
         if self.loops < 1:
-            agent: CoordinatorAgent = self.agent
+            agent: "CoordinatorAgent" = self.agent
             agent.logger.debug(f"SubscriptionCoordinatorState: {self.ready_agents}.")
 
     async def run(self) -> None:
-        agent: CoordinatorAgent = self.agent
+        agent: "CoordinatorAgent" = self.agent
         if not self._are_all_agents_ready():
             msg = await self.receive(timeout=3)
             if msg and msg.body == "ready to start":
@@ -228,7 +228,7 @@ class PresenceCoordinatorFSM(FSMBehaviour):
         super().__init__()
 
     async def on_start(self) -> None:
-        agent: CoordinatorAgent = self.agent
+        agent: "CoordinatorAgent" = self.agent
         agent.logger.debug("PresenceCoordinatorFSM started.")
 
     def setup(self) -> None:
@@ -248,5 +248,5 @@ class PresenceCoordinatorFSM(FSMBehaviour):
         self.add_transition(source="subscription", dest="wait")
 
     async def on_end(self) -> None:
-        agent: CoordinatorAgent = self.agent
+        agent: "CoordinatorAgent" = self.agent
         agent.logger.debug("PresenceCoordinatorFSM behaviour finished.")

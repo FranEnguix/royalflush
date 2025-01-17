@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class LaunchAgentsBehaviour(OneShotBehaviour):
 
     async def run(self) -> None:
-        agent: LauncherAgent = self.agent
+        agent: "LauncherAgent" = self.agent
         await agent.launch_agents()
         agent.logger.info("Agents launched.")
 

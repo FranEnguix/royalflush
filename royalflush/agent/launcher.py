@@ -1,7 +1,11 @@
+from typing import TYPE_CHECKING
+
 from aioxmpp import JID
 
 from .base import AgentBase
-from .premiofl.base import PremioFlAgent
+
+if TYPE_CHECKING:
+    from .base import PremioFlAgent
 
 
 class LauncherAgent(AgentBase):
@@ -15,7 +19,7 @@ class LauncherAgent(AgentBase):
         self,
         jid: str,
         password: str,
-        agents: list[PremioFlAgent],
+        agents: list["PremioFlAgent"],
         max_message_size: int,
         agents_coordinator: JID,
         agents_observers: list[JID],
