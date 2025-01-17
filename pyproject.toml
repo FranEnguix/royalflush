@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "royalflush"
-version = "0.3.1"
+version = "0.3.2"
 description = "Royal FLush is a Python framework specifically designed to facilitate the development, execution and analysis of multi-agent systems (MAS) federated learning (FL) experiments."
 readme = "README.md"
 keywords = ["royalflush", "artificial intelligence", "multi-agent systems", "intelligent agents", "federated learning", "framework"]
