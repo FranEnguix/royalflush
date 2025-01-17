@@ -10,9 +10,6 @@ from spade.message import Message
 from spade.template import Template
 from torch import Tensor
 
-from royalflush.behaviour.premiofl.fsm import PremioFsmBehaviour
-from royalflush.behaviour.premiofl.layer_receiver import LayerReceiverBehaviour
-from royalflush.behaviour.premiofl.similarity_receiver import SimilarityReceiverBehaviour
 from royalflush.datatypes.consensus import Consensus
 from royalflush.datatypes.consensus_manager import ConsensusManager
 from royalflush.datatypes.models import ModelManager
@@ -282,6 +279,9 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         web_port: int = 10000,
         verify_security: bool = False,
     ):
+        from royalflush.behaviour.premiofl.fsm import PremioFsmBehaviour
+        from royalflush.behaviour.premiofl.layer_receiver import LayerReceiverBehaviour
+        from royalflush.behaviour.premiofl.similarity_receiver import SimilarityReceiverBehaviour
 
         extra_name = f"agent.{JID.fromstr(jid).localpart}"
         self.consensus_manager = consensus_manager
