@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from spade.behaviour import CyclicBehaviour, OneShotBehaviour
 
 if TYPE_CHECKING:
-    from royalflush.agent import LauncherAgent
+    from .._agent.launcher import LauncherAgent
 
 
 class LaunchAgentsBehaviour(OneShotBehaviour):

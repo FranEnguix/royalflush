@@ -1,9 +1,9 @@
+from .._agent.agent_factory import AgentFactory
+from .._agent.base import AgentBase, AgentNodeBase, PremioFlAgent
+from .._agent.coordinator import CoordinatorAgent
+from .._agent.launcher import LauncherAgent
+from .._agent.observer import ObserverAgent
 from . import premiofl
-from .agent_factory import AgentFactory
-from .base import AgentBase, AgentNodeBase, PremioFlAgent
-from .coordinator import CoordinatorAgent
-from .launcher import LauncherAgent
-from .observer import ObserverAgent
 
 __all__ = [
     "AgentFactory",

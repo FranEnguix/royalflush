@@ -6,7 +6,7 @@ from spade.behaviour import State
 from ...datatypes.metrics import ModelMetrics
 
 if TYPE_CHECKING:
-    from ...agent.base import PremioFlAgent
+    from ..._agent.base import PremioFlAgent
 
 
 class TrainAndApplyConsensusState(State):

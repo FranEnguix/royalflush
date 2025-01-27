@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from spade.behaviour import State
 
 if TYPE_CHECKING:
-    from ...agent.base import PremioFlAgent
+    from ..._agent.base import PremioFlAgent
 
 
 class ConsensusState(State):

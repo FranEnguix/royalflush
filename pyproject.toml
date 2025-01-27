@@ -73,8 +73,13 @@ test = ["coverage"]
 [project.scripts]
 royalflush = "royalflush.cli:cli"
 
-[tool.setuptools]
-packages = ["royalflush"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["royalflush*"]
+exclude = ["royalflush.tests*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "royalflush.__version__"}
 
 [tool.black]
 line-length = 120

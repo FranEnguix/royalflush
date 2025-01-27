@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.3] - 2025-01-27
+
+### Changed
+- Replace default Small-World graph set to k=4 and p=0.3.
+
+### Fixed
+- Circular import bug.
+
 ## [0.3.2] - 2025-01-17
 
 ### Fixed

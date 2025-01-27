@@ -7,15 +7,14 @@ from uuid import UUID
 
 from aioxmpp import JID
 
-from royalflush.datatypes import ModelManager
-from royalflush.datatypes.consensus_manager import ConsensusManager
-from royalflush.datatypes.data import DatasetSettings, IidDatasetSettings, NonIidDirichletDatasetSettings
-from royalflush.datatypes.experiment import ExperimentRawData
-from royalflush.datatypes.graph import GraphManager
-from royalflush.nn.model_factory import ModelManagerFactory
-from royalflush.similarity.function import EuclideanDistanceFunction
-from royalflush.similarity.similarity_manager import SimilarityManager
-
+from ..datatypes.consensus_manager import ConsensusManager
+from ..datatypes.data import DatasetSettings, IidDatasetSettings, NonIidDirichletDatasetSettings
+from ..datatypes.experiment import ExperimentRawData
+from ..datatypes.graph import GraphManager
+from ..datatypes.models import ModelManager
+from ..nn.model_factory import ModelManagerFactory
+from ..similarity.function import EuclideanDistanceFunction
+from ..similarity.similarity_manager import SimilarityManager
 from .base import PremioFlAgent
 from .premiofl.acol import AcolAgent
 from .premiofl.macofl import MacoflAgent

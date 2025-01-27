@@ -85,7 +85,7 @@ class TestGraph(unittest.TestCase):
             # Small-world graph
             out = self.folder / f"{num_agents:03}_agents_sw"
             out.resolve()
-            gml_manager.generate_small_world(agents, k=2, p=0.1)
+            gml_manager.generate_small_world(agents, k=4, p=0.3)
             gml_manager.export_to_gml(f"{out}.gml")
             gml_manager.import_from_gml(f"{out}.gml")
             gml_manager.visualize(f"{out}.html")

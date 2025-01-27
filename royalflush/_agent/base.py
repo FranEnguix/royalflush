@@ -10,24 +10,24 @@ from spade.message import Message
 from spade.template import Template
 from torch import Tensor
 
-from royalflush.datatypes.consensus import Consensus
-from royalflush.datatypes.consensus_manager import ConsensusManager
-from royalflush.datatypes.models import ModelManager
-from royalflush.log.algorithm import AlgorithmLogManager
-from royalflush.log.message import MessageLogManager
-from royalflush.log.nn import NnConvergenceLogManager, NnInferenceLogManager, NnTrainLogManager
-from royalflush.similarity.similarity_manager import SimilarityManager
-from royalflush.similarity.similarity_vector import SimilarityVector
-
+from .._behaviour.coordination import PresenceNodeFSM
+from .._behaviour.premiofl.fsm import PremioFsmBehaviour
+from .._behaviour.premiofl.layer_receiver import LayerReceiverBehaviour
+from .._behaviour.premiofl.similarity_receiver import SimilarityReceiverBehaviour
+from ..datatypes.consensus import Consensus
+from ..datatypes.consensus_manager import ConsensusManager
+from ..datatypes.models import ModelManager
+from ..log.algorithm import AlgorithmLogManager
 from ..log.general import GeneralLogManager
 from ..log.message import MessageLogManager
+from ..log.nn import NnConvergenceLogManager, NnInferenceLogManager, NnTrainLogManager
 from ..message.message import RfMessage
 from ..message.multipart import MultipartHandler
+from ..similarity.similarity_manager import SimilarityManager
+from ..similarity.similarity_vector import SimilarityVector
 
 if TYPE_CHECKING:
     from spade.behaviour import CyclicBehaviour
-
-    from ..behaviour.coordination import PresenceNodeFSM
 
 
 class AgentBase(Agent):
@@ -157,7 +157,6 @@ class AgentNodeBase(AgentBase):
         )
 
     async def setup(self) -> None:
-        from ..behaviour.coordination import PresenceNodeFSM
 
         await super().setup()
         if self.coordinator is not None:
@@ -279,9 +278,6 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         web_port: int = 10000,
         verify_security: bool = False,
     ):
-        from royalflush.behaviour.premiofl.fsm import PremioFsmBehaviour
-        from royalflush.behaviour.premiofl.layer_receiver import LayerReceiverBehaviour
-        from royalflush.behaviour.premiofl.similarity_receiver import SimilarityReceiverBehaviour
 
         extra_name = f"agent.{JID.fromstr(jid).localpart}"
         self.consensus_manager = consensus_manager

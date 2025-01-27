@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from aioxmpp import JID
 from spade.template import Template
 
-from royalflush.agent import AgentBase
-
-if TYPE_CHECKING:
-    from royalflush.behaviour.coordination import PresenceCoordinatorFSM
+from .._agent.base import AgentBase
+from .._behaviour.coordination import PresenceCoordinatorFSM
 
 
 class CoordinatorAgent(AgentBase):
@@ -22,7 +20,7 @@ class CoordinatorAgent(AgentBase):
         verify_security: bool = False,
     ):
         self.coordinated_agents = [] if coordinated_agents is None else coordinated_agents
-        self.coordination_fsm: None | "PresenceCoordinatorFSM" = None
+        self.coordination_fsm: Optional["PresenceCoordinatorFSM"] = None
         super().__init__(
             jid,
             password,
@@ -33,8 +31,6 @@ class CoordinatorAgent(AgentBase):
         )
 
     async def setup(self) -> None:
-        from royalflush.behaviour.coordination import PresenceCoordinatorFSM
-
         await super().setup()
         template = Template()
         template.set_metadata("rf.presence", "sync")

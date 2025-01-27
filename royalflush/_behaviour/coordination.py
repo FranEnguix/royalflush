@@ -7,8 +7,8 @@ from spade.behaviour import FSMBehaviour, State
 from spade.message import Message
 
 if TYPE_CHECKING:
-    from ..agent import AgentNodeBase
-    from ..agent.coordinator import CoordinatorAgent
+    from .._agent.base import AgentNodeBase
+    from .._agent.coordinator import CoordinatorAgent
 
 # --------------------------------------------- #
 # --------------------------------------------- #

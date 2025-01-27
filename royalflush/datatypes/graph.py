@@ -199,7 +199,7 @@ class GraphManager:
             for j in range(i + 1, len(agents)):
                 self.add_connection(agent, agents[j])
 
-    def generate_small_world(self, agents: List[JID], k: int, p: float) -> None:
+    def generate_small_world(self, agents: List[JID], k: int = 4, p: float = 0.3) -> None:
         """
         Generate a small-world network using the Watts-Strogatz model.
         `k` is the number of nearest neighbors in the ring, and `p` is the probability of rewiring.

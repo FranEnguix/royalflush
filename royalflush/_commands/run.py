@@ -13,13 +13,19 @@ import click
 import spade
 from aioxmpp import JID
 
-from royalflush.agent import AgentFactory, CoordinatorAgent, LauncherAgent, ObserverAgent
-from royalflush.datatypes import ExperimentRawData, GraphManager
-from royalflush.log import GeneralLogManager, setup_loggers
+from royalflush import __version__
+
+from .._agent.agent_factory import AgentFactory
+from .._agent.coordinator import CoordinatorAgent
+from .._agent.launcher import LauncherAgent
+from .._agent.observer import ObserverAgent
+from ..datatypes.experiment import ExperimentRawData
+from ..datatypes.graph import GraphManager
+from ..log.general import GeneralLogManager
+from ..log.log import setup_loggers
 
 
 async def main(experiment: ExperimentRawData) -> None:
-    from royalflush import __version__
 
     xmpp_domain = experiment.xmpp_domain
     max_message_size = 250_000  # shall not be close to 262 144

@@ -9,7 +9,7 @@ from torch import Tensor
 from ...similarity.similarity_vector import SimilarityVector
 
 if TYPE_CHECKING:
-    from ...agent.base import PremioFlAgent
+    from ..._agent.base import PremioFlAgent
 
 
 class CommunicationState(State):

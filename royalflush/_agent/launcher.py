@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from aioxmpp import JID
 
+from .._behaviour.launcher import LaunchAgentsBehaviour, Wait
 from .base import AgentBase
 
 if TYPE_CHECKING:
@@ -12,7 +13,7 @@ class LauncherAgent(AgentBase):
     """
     LauncherAgent is responsible for:
     1) Setting up presence handlers.
-    2) Launching actual FL agents based on the Experiment & Graph.
+    2) Launching FL agents.
     """
 
     def __init__(
@@ -34,8 +35,6 @@ class LauncherAgent(AgentBase):
         self.logger.debug(f"Agents to launch: {[a.jid.bare() for a in self.agents]}")
 
     async def setup(self) -> None:
-        from ..behaviour.launcher import LaunchAgentsBehaviour, Wait
-
         self.setup_presence_handlers()
         self.presence.set_available()
         self.add_behaviour(LaunchAgentsBehaviour())
@@ -43,8 +42,7 @@ class LauncherAgent(AgentBase):
 
     async def launch_agents(self) -> None:
         """
-        Creates and starts the actual FL agents based on the Experiment settings
-        and the .gml graph structure.
+        Starts the FL agents.
         """
         self.logger.debug(f"Initializating launch of {[str(a.jid.bare()) for a in self.agents]}")
         for agent in self.agents:

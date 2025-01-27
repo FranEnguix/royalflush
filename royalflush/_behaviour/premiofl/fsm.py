@@ -7,7 +7,7 @@ from .consensus import ConsensusState
 from .train import TrainAndApplyConsensusState
 
 if TYPE_CHECKING:
-    from ...agent.base import PremioFlAgent
+    from ..._agent.base import PremioFlAgent
 
 
 class PremioFsmBehaviour(FSMBehaviour):

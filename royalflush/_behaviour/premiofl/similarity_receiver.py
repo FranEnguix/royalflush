@@ -8,7 +8,7 @@ from ...message.message import RfMessage
 from ...similarity.similarity_vector import SimilarityVector
 
 if TYPE_CHECKING:
-    from ...agent.base import PremioFlAgent
+    from ..._agent.base import PremioFlAgent
 
 
 class SimilarityReceiverBehaviour(CyclicBehaviour):
