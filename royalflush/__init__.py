@@ -2,7 +2,7 @@
 
 __author__ = """Francisco Enguix"""
 __email__ = "enguix.fco@gmail.com"
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 from . import agent, behaviour, dataset, datatypes, log, message, nn, similarity, utils
 
