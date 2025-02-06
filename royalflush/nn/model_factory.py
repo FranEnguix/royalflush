@@ -27,7 +27,7 @@ class ModelManagerFactory:
     def get_ann(dataset: str, ann: str) -> nn.Module:
         input_dim, out_classes = None, None
 
-        # Dimensions
+        # Datasets
         if dataset == "cifar10":
             input_dim = (3, 32, 32)
             out_classes = 10

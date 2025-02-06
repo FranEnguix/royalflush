@@ -18,6 +18,7 @@ from ..similarity.similarity_manager import SimilarityManager
 from .base import PremioFlAgent
 from .premiofl.acol import AcolAgent
 from .premiofl.macofl import MacoflAgent
+from .premiofl.pmacofl_max import PmacoflMaxAgent
 from .premiofl.pmacofl_min import PmacoflMinAgent
 
 
@@ -35,12 +36,12 @@ def create_dataset_settings(distribution: str, num_clients: int, client_index: i
             test_samples_percent=1.0,
         )
     if dist_lower.startswith("non_iid diritchlet"):
-        # TODO parse alpha=0.1 from the string
+        alpha = float(dist_lower.split("non_iid diritchlet")[1].strip())
         return NonIidDirichletDatasetSettings(
             seed=13,
             num_clients=num_clients,
             client_index=client_index,
-            dirichlet_alpha=0.1,
+            dirichlet_alpha=alpha,
         )
     raise NotImplementedError("Distribution of dataset does not exist.")
 
@@ -89,6 +90,20 @@ def create_experiment_agent(
         )
     if algorithm.lower() == "pmacofl_min":
         return PmacoflMinAgent(
+            jid=jid,
+            password=password,
+            max_message_size=max_message_size,
+            consensus_manager=consensus_manager,
+            model_manager=model_manager,
+            similarity_manager=similarity_manager,
+            observers=observers,
+            neighbours=neighbours,
+            coordinator=coordinator,
+            max_rounds=max_rounds,
+            verify_security=verify_security,
+        )
+    if algorithm.lower() == "pmacofl_max":
+        return PmacoflMaxAgent(
             jid=jid,
             password=password,
             max_message_size=max_message_size,
