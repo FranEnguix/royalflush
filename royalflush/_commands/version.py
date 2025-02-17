@@ -6,7 +6,8 @@ from royalflush import __version__
 
 
 @click.command(name="version")
-def version_cmd() -> None:
+@click.pass_context
+def version_cmd(_: click.Context) -> None:
     """
     Show the current version of RoyalFlush.
 

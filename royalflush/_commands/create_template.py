@@ -25,6 +25,7 @@ def create_template_cmd(_: click.Context, template_file: str) -> None:
     The resulting JSON has the following structure:
     {
         "uuid4": "generate_new_uuid4",
+        "xmpp_domain": "localhost",
         "algorithm": "ACoL",
         "algorithm_rounds": 10,
         "consensus_iterations": 10,
@@ -50,6 +51,7 @@ def create_template_cmd(_: click.Context, template_file: str) -> None:
 
     template_data = {
         "uuid4": "generate_new_uuid4",
+        "xmpp_domain": "localhost",
         "algorithm": "ACoL",
         "algorithm_rounds": 10,
         "consensus_iterations": 10,

@@ -6,9 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.4] - 2025-02-17
+
 ### Added
 - Add PMACoFL Max algorithm.
 - Add parsing to Diritchlet alpha input.
+- Add ReputationManager class.
+- Add xmpp_domain to json template.
+- Add sphinx-rtd documentation webpage.
+
+### Changed
+- ReadTheDocs package info.
+
+### Fixed
+- CLI preventing running the client.
 
 ## [0.3.3] - 2025-01-27
 

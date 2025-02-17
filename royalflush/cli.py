@@ -19,8 +19,12 @@ def create_cli() -> click.Group:
     """
 
     @click.group()
-    def cli_fn():
+    @click.option("--verbose", is_flag=True, help="Enable verbose output.")
+    @click.pass_context
+    def cli_fn(ctx: click.Context, verbose: bool) -> None:
         """Royal FLush CLI"""
+        ctx.ensure_object(dict)
+        ctx.obj["VERBOSE"] = verbose
 
     # Add subcommands to the main group
     cli_fn.add_command(run_cmd)

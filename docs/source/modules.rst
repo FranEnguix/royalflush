@@ -5,3 +5,4 @@ royalflush
    :maxdepth: 4
 
    royalflush
+   tests
