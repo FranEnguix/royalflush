@@ -6,12 +6,13 @@
 Welcome to Royal FLush's documentation!
 =======================================
 
+.. include:: installation.rst
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
    source/modules
-
 
 
 Indices and tables

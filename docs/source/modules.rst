@@ -1,4 +1,4 @@
-royalflush
+Royal FLush
 ==========
 
 .. toctree::
