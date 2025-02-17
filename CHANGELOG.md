@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+# Changed
+- Upgraded torch version from 1.11.0 to 2.6.0.
+- Upgraded torchvision version from 0.12.0 to 0.21.0.
+
 ## [0.3.4] - 2025-02-17
 
 ### Added
