@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from aioxmpp import JID
 from spade.template import Template
@@ -21,6 +21,7 @@ class CoordinatorAgent(AgentBase):
     ):
         self.coordinated_agents = [] if coordinated_agents is None else coordinated_agents
         self.coordination_fsm: Optional["PresenceCoordinatorFSM"] = None
+        self.ready_to_start_algorithm = False  # Flag to prevent finish before starting the algorithm
         super().__init__(
             jid,
             password,

@@ -12,7 +12,7 @@ class TestGraph(unittest.TestCase):
         """
         Runs before each test. Ensures that the folder exists initially.
         """
-        self.folder: Path = Path("royalflush_graphs")
+        self.folder: Path = Path("royalflush_test_graphs")
         self.folder.mkdir(parents=True, exist_ok=True)
 
     def test_custom_graph(self) -> None:

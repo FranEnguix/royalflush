@@ -201,6 +201,7 @@ class SubscriptionCoordinatorState(State):
                 msg.set_metadata("rf.presence", "sync")
                 await self.send(msg)
             agent.logger.info(f"All '{body}' messages sent.")
+            agent.ready_to_start_algorithm = True
             self.set_next_state("wait")
         else:
             self.set_next_state("subscription")

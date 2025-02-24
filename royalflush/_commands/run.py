@@ -126,7 +126,7 @@ async def main(experiment: ExperimentRawData) -> None:
         logger.info("Launcher initialized.")
 
         await asyncio.sleep(5)
-        while any(ag.is_alive() for ag in launcher.agents):
+        while not coordinator.ready_to_start_algorithm or any(ag.is_alive() for ag in launcher.agents):
             await asyncio.sleep(5)
 
     except KeyboardInterrupt as e:

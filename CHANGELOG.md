@@ -4,11 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html), limiting the versioning semantics to major, minor and patch versions.
 
+
 ## [Unreleased]
 
-# Changed
+
+## [0.3.5] - 2025-02-24
+
+### Added
+- Add coordinator flag to know if agents are subscribed to their neighbours.
+- Add example graphs in `royalflush_graphs` folder.
+
+### Changed
+- Now pytest graphs are created in `royalflush_test_graphs` folder.
 - Upgraded torch version from 1.11.0 to 2.6.0.
 - Upgraded torchvision version from 0.12.0 to 0.21.0.
+- Renamed the experiment file `test.json` to `test_experiment.json`. 
+
+### Fixed
+- Now the console output only removes UUID4 when preceded by a double underscore.
 
 ## [0.3.4] - 2025-02-17
 
@@ -62,7 +75,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - Project configuration files.
-- Add Read The Docs documentation.
+- Add Read The Docs [documentation](https://royalflush.readthedocs.io/en/latest/).
 
 ## [0.1.0] - 2024-10-17
 

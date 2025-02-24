@@ -1,7 +1,7 @@
 Installation Guide
 ==================
 
-To install **Royal FLush**, use the following command:
+To install **Royal FLush** with CUDA 11.8, use the following command:
 
 .. code-block:: bash
 
@@ -9,7 +9,7 @@ To install **Royal FLush**, use the following command:
 
 .. warning::
 
-   **Incorrect installation may cause issues!** Ensure you use the correct CUDA version for PyTorch.
+   **Incorrect installation may cause issues!** Ensure you use the correct CUDA version for PyTorch 2.6.0.
    If you are unsure, check your CUDA version and visit:
    https://pytorch.org/get-started/locally/
 

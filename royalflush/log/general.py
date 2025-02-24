@@ -6,15 +6,15 @@ from pathlib import Path
 class RemoveUuid4Filter(logging.Filter):
     def __init__(self, name: str = "") -> None:
         super().__init__(name)
-        self.uuid_regex = re.compile(r"[a-z0-9]{8}-\b[a-z0-9]{4}-\b[a-z0-9]{4}-\b[a-z0-9]{4}-\b[a-z0-9]{12}")
+        self.uuid_regex = re.compile(r"__(?P<uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})")
 
     def filter(self, record: logging.LogRecord) -> bool:
         # Remove the UUID portion
         record.name = self.uuid_regex.sub(
             "",
-            record.name.replace("rf.log.", "").replace("agent.", "").replace("_", ""),
+            record.name.replace("rf.log.", "").replace("agent.", ""),
         )
-        record.msg = self.uuid_regex.sub("", record.msg.replace("_", ""))
+        record.msg = self.uuid_regex.sub("", record.msg)
         return True
 
 

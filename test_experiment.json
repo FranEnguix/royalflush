@@ -2,10 +2,10 @@
     "uuid4": "generate_new_uuid4",
     "xmpp_domain": "localhost",
     "algorithm": "ACoL",
-    "algorithm_rounds": 3,
-    "consensus_iterations": 5,
+    "algorithm_rounds": 10,
+    "consensus_iterations": 100,
     "training_epochs": 1,
-    "graph_path": "royalflush_graphs/003_agents_complete.gml",
+    "graph_path": "royalflush_graphs/010_agents_complete.gml",
     "dataset": "cifar10",
     "distribution": "non_iid diritchlet 0.1",
     "ann": "cnn5"

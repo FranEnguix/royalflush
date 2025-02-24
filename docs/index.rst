@@ -10,7 +10,7 @@ Welcome to Royal FLush's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents
+   :caption: Source code
 
    source/modules
 
