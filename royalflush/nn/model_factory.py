@@ -55,7 +55,7 @@ class ModelManagerFactory:
 
     @staticmethod
     def get_manager(
-        dataset: str, settings: DatasetSettings, ann: str, training_epochs: int, seed: Optional[int]
+        dataset: str, settings: DatasetSettings, ann: str, training_epochs: int, seed: Optional[int] = 42
     ) -> ModelManager:
         generator = ModelManagerFactory.get_dataloader_generator(dataset=dataset)
         dataloaders = generator.get_dataloaders(dataset_settings=settings)
