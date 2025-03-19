@@ -168,3 +168,5 @@ notas/
 plots/
 royalflush_datasets/
 royalflush_test_graphs/
+royalflush_*.txt
+test_experiment.json

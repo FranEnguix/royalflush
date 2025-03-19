@@ -239,12 +239,12 @@ class BaseDataLoaderGenerator(DataloaderGeneratorInterface):
             test=test_dataset,
         )
 
-    def get_dataloaders(self, settings: DatasetSettings) -> DataLoaders:
-        RandomUtils.set_randomness(seed=settings.seed)
-        if isinstance(settings, IidDatasetSettings):
-            return self._build_dataloaders_iid(settings=settings)
-        if isinstance(settings, NonIidDirichletDatasetSettings):
-            return self._build_dataloaders_non_iid_dirichlet(settings=settings)
-        if isinstance(settings, NonIidNonOverlappingClassesDatasetSettings):
-            return self._build_dataloaders_non_iid(settings=settings)
-        raise NotImplementedError
+    def get_dataloaders(self, dataset_settings: DatasetSettings) -> DataLoaders:
+        RandomUtils.set_randomness(seed=dataset_settings.seed)
+        if isinstance(dataset_settings, IidDatasetSettings):
+            return self._build_dataloaders_iid(settings=dataset_settings)
+        if isinstance(dataset_settings, NonIidDirichletDatasetSettings):
+            return self._build_dataloaders_non_iid_dirichlet(settings=dataset_settings)
+        if isinstance(dataset_settings, NonIidNonOverlappingClassesDatasetSettings):
+            return self._build_dataloaders_non_iid(settings=dataset_settings)
+        raise NotImplementedError(f"IID: {dataset_settings.iid}, type: {type(dataset_settings)}")

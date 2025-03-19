@@ -5,7 +5,6 @@ import json
 import logging
 import sys
 import traceback
-import uuid
 from pathlib import Path
 from typing import Any, Dict
 
@@ -19,24 +18,19 @@ from .._agent.agent_factory import AgentFactory
 from .._agent.coordinator import CoordinatorAgent
 from .._agent.launcher import LauncherAgent
 from .._agent.observer import ObserverAgent
-from ..datatypes.experiment import ExperimentRawData
-from ..datatypes.graph import GraphManager
+from ..datatypes.experiment import Experiment
 from ..log.general import GeneralLogManager
 from ..log.log import setup_loggers
 
 
-async def main(experiment: ExperimentRawData) -> None:
+async def main(experiment: Experiment) -> None:
 
     xmpp_domain = experiment.xmpp_domain
     max_message_size = 250_000  # shall not be close to 262 144
     number_of_observers = 1
 
     # UUID4
-    uuid4: uuid.UUID | None = None
-    if experiment.uuid4 == "generate_new_uuid4":
-        uuid4 = uuid.uuid4()
-    elif isinstance(experiment.uuid4, str):
-        uuid4 = uuid.UUID(experiment.uuid4)
+    uuid4 = experiment.uuid4
 
     # JIDs
     launcher_jid_str = f"launcher__{uuid4}@{xmpp_domain}"
@@ -51,19 +45,13 @@ async def main(experiment: ExperimentRawData) -> None:
     logger.info(f"UUID4: {uuid4}")
     logger.info(f"Experiment details: {repr(experiment)}")
 
-    # Graph
-    logger.debug("Initializating GraphManager...")
-    graph_manager = GraphManager()
-    graph_manager.import_from_gml(experiment.graph_path)
-    logger.debug(f"Graph {experiment.graph_path} loaded")
-
     # Coordinator
     logger.debug(f"Initializating {coordinator_jid_str} coordinator...")
     coordinator = CoordinatorAgent(
         jid=coordinator_jid_str,
         password="123",
         max_message_size=max_message_size,
-        coordinated_agents=graph_manager.list_agents_jids(uuid=uuid4),
+        coordinated_agents=experiment.graph_manager.list_agents_jids(uuid=uuid4),
         verify_security=False,
     )
     await asyncio.sleep(0.2)
@@ -89,15 +77,13 @@ async def main(experiment: ExperimentRawData) -> None:
     logger.debug("Initializating agents...")
     agent_factory = AgentFactory(
         experiment=experiment,
-        graph_manager=graph_manager,
         coordinator_jid=JID.fromstr(coordinator_jid_str),
         observer_jids=observer_jids,
-        uuid=uuid4,
         max_message_size=max_message_size,
     )
 
     # Launcher
-    logger.debug(f"Initializating {launcher_jid_str} launcher...")
+    logger.debug(f"Initializating launcher {launcher_jid_str}...")
     launcher = LauncherAgent(
         jid=launcher_jid_str,
         password="123",
@@ -130,6 +116,7 @@ async def main(experiment: ExperimentRawData) -> None:
             await asyncio.sleep(5)
 
     except KeyboardInterrupt as e:
+        logger.info("Sending Keyboard Interrupt signal...")
         raise e
 
     except Exception as e:
@@ -146,9 +133,10 @@ async def main(experiment: ExperimentRawData) -> None:
             if ag.is_alive():
                 await ag.stop()
         logger.info("Run finished.")
+        sys.exit(0)
 
 
-def init_experiment(experiment: ExperimentRawData) -> None:
+def init_experiment(experiment: Experiment) -> None:
     try:
         setup_loggers(general_level=logging.INFO)
         spade.run(main(experiment=experiment))
@@ -188,7 +176,7 @@ def run_cmd(ctx: click.Context, experiment_file: str) -> None:
         click.echo(f"Error loading JSON data: {exc}")
         return
 
-    experiment = ExperimentRawData.from_json(config_data)
+    experiment = Experiment.from_json(config_data)
 
     if ctx.obj.get("VERBOSE"):
         click.echo(f"Experiment loaded: {experiment}")

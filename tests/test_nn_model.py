@@ -13,7 +13,7 @@ from royalflush.nn.model.mlp import CifarMlp
 def build_neural_network(seed: int = 42) -> ModelManager:
     cifar10_generator = Cifar10DataLoaderGenerator()
     iid_settings = IidDatasetSettings(seed=42)
-    dataloaders = cifar10_generator.get_dataloaders(settings=iid_settings)
+    dataloaders = cifar10_generator.get_dataloaders(dataset_settings=iid_settings)
     model = CifarMlp(out_classes=10)
     return ModelManager(
         model=model,

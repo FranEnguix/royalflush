@@ -76,6 +76,8 @@ class ConsensusManager:
     def apply_consensus(self, consensus: Consensus) -> None:
         if self.model_manager.is_training():
             raise RuntimeError("Trying to apply consensus while training the model.")
+        # full_model -> this agent's model.
+        # layers -> layers to consensuate from the other agent.
         consensuated_model = ConsensusManager.apply_consensus_to_layers(
             full_model=self.model_manager.model.state_dict(),
             layers=consensus.layers,
@@ -92,6 +94,7 @@ class ConsensusManager:
             ct = self.received_consensus.get()
             ct.processed_start_time_z = datetime.now(tz=timezone.utc)
             self.apply_consensus(ct)
+            # TODO: Log weights here
             ct.processed_end_time_z = datetime.now(tz=timezone.utc)
             consumed_consensus_transmissions.append(ct)
             self.received_consensus.task_done()
@@ -108,8 +111,8 @@ class ConsensusManager:
         for key in full_model.keys():
             if key in layers:
                 consensuated_result[key] = ConsensusManager.apply_consensus_to_tensors(
-                    tensor_a=full_model[key],
-                    tensor_b=layers[key],
+                    main=full_model[key],
+                    foreign=layers[key],
                     max_order=max_order,
                     epsilon_margin=epsilon_margin,
                 )
@@ -119,14 +122,14 @@ class ConsensusManager:
 
     @staticmethod
     def apply_consensus_to_tensors(
-        tensor_a: Tensor, tensor_b: Tensor, max_order: int, epsilon_margin: float = 0.05
+        main: Tensor, foreign: Tensor, max_order: int, epsilon_margin: float = 0.05
     ) -> Tensor:
         """
         Computes a new consensuated `pytorch.Tensor` without modifying the input tensors.
 
         Args:
-            tensor_a (Tensor): Input `torch.Tensor` that will be multiplied by epsilon.
-            tensor_b (Tensor): Input `torch.Tensor` that will be multiplied by (1 - epsilon).
+            main (Tensor): Input `torch.Tensor` that will be multiplied by (1 - epsilon). This must be the main agent's Tensor.
+            foreign (Tensor): Input `torch.Tensor` that will be multiplied by epsilon. This must be the other agent's Tensor.
             max_order (int): Maximum order of the graph network.
             epsilon_margin (float, optional): A margin to be sure that epsilon < 1 / max_graph_degree. Defaults to 0.05.
 
@@ -140,7 +143,7 @@ class ConsensusManager:
             raise ValueError(f"Max order of consensus must be greater than 1 and it is {max_order}.")
         # epsilon_margin because must be LESS than 1 / max_order
         epsilon = 1 / max_order - epsilon_margin
-        return epsilon * tensor_a + (1 - epsilon) * tensor_b
+        return (1 - epsilon) * main + epsilon * foreign
 
     def add_one_completed_iteration(self, algorithm_rounds: int) -> int:
         if algorithm_rounds != self.__last_algorithm_iteration:

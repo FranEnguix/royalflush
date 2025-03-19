@@ -3,15 +3,14 @@ Factory class to create a list of FL agents based on an Experiment and graph man
 """
 
 from typing import List
-from uuid import UUID
 
 from aioxmpp import JID
 
 from ..datatypes.consensus_manager import ConsensusManager
 from ..datatypes.data import DatasetSettings, IidDatasetSettings, NonIidDirichletDatasetSettings
-from ..datatypes.experiment import ExperimentRawData
-from ..datatypes.graph import GraphManager
+from ..datatypes.experiment import Experiment
 from ..datatypes.models import ModelManager
+from ..log.general import GeneralLogManager
 from ..nn.model_factory import ModelManagerFactory
 from ..similarity.function import EuclideanDistanceFunction
 from ..similarity.similarity_manager import SimilarityManager
@@ -129,19 +128,15 @@ class AgentFactory:
 
     def __init__(
         self,
-        experiment: ExperimentRawData,
-        graph_manager: GraphManager,
+        experiment: Experiment,
         coordinator_jid: JID,
         observer_jids: List[JID],
-        uuid: UUID | None = None,
         max_message_size: int = 250_000,
         verify_security: bool = False,
     ) -> None:
         self.experiment = experiment
-        self.graph_manager = graph_manager
         self.coordinator_jid = coordinator_jid
         self.observer_jids = observer_jids
-        self.uuid = uuid
         self.max_message_size = max_message_size
         self.verify_security = verify_security
 
@@ -152,9 +147,19 @@ class AgentFactory:
         algorithm_rounds = self.experiment.algorithm_rounds or 120
         consensus_iterations = self.experiment.consensus_iterations or 10
 
+        logger = GeneralLogManager(extra_logger_name="agent_factory")
         agents: List[PremioFlAgent] = []
-        agent_localparts = self.graph_manager.list_agents_with_neighbours(uuid=self.uuid)
+        agent_localparts = self.experiment.graph_manager.list_agents_with_neighbours(uuid=self.experiment.uuid4)
         max_order = max(len(ns) for ns in agent_localparts.values())
+        min_order = min(len(ns) for ns in agent_localparts.values())
+        if max_order < 2:
+            logger.warning(
+                f"The maximum order based on the graph is {max_order}. It has been adjusted to 2 to ensure the correctness of the consensus."
+            )
+            max_order = 2
+        logger.debug(f"The minimum order (not used) based on the graph is: {min_order}.")
+        logger.info(f"The maximum order based on the graph is: {max_order}.")
+
         for index, localpart in enumerate(agent_localparts.keys()):
             agent_jid = JID.fromstr(f"{localpart}@{self.experiment.xmpp_domain}")
             neighbor_localparts = agent_localparts[localpart]
@@ -173,6 +178,7 @@ class AgentFactory:
                 settings=dataset_settings,
                 ann=self.experiment.ann,
                 training_epochs=self.experiment.training_epochs,
+                seed=self.experiment.seed,
             )
 
             # Create consensus manager

@@ -14,13 +14,16 @@ def setup_loggers(
     datetime_mark: bool = True,
     general_level: int = logging.DEBUG,
     csv_level: int = logging.DEBUG,
+    spade_level: int = logging.WARNING,
 ) -> None:
     log_folder = Path(log_folder_path)
     if datetime_mark:
-        log_folder = log_folder / datetime.now(tz=timezone.utc).strftime("%Y_%m_%d_T_%H_%M_%S_%f_Z") / "raw"
+        log_folder = log_folder / datetime.now(tz=timezone.utc).strftime("%Y_%m_%d_T_%H_%M_%S_%f_Z")
     else:
         log_folder = log_folder / str(uuid.uuid4()).replace("-", "_")
+    log_folder = log_folder / "raw"
 
+    # logging.getLogger("spade").setLevel(spade_level)
     GeneralLogManager(level=general_level).setup(folder_name=log_folder, file_name="general.log")
     AlgorithmLogManager(level=csv_level).setup(folder_name=log_folder, file_name="algorithm.csv")
     NnInferenceLogManager(level=csv_level).setup(folder_name=log_folder, file_name="nn_inference.csv")

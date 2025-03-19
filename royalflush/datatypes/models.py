@@ -1,11 +1,13 @@
 import codecs
 import copy
+import logging
 import pickle
 from datetime import datetime, timezone
 from typing import Callable, OrderedDict
 
 import torch
 from aioxmpp import JID
+from sklearn.metrics import f1_score, precision_score, recall_score
 from torch import Tensor, nn
 from torch.nn import Parameter
 from torch.nn.modules.loss import _Loss
@@ -64,13 +66,69 @@ class ModelManager:
     def replace_all_layers(self, new_layers: OrderedDict[str, Tensor]) -> None:
         self.model.load_state_dict(state_dict=new_layers)
 
+    def __log_weights(
+        self,
+        epoch: int,
+        weight_logger: None | Callable[[int, str, float, int, JID, int], None] = None,
+        agent_jid: None | JID = None,
+        current_round: None | int = None,
+        weight_id: int | None = None,
+    ) -> None:
+        """
+        Log current weight state. If weight_id < 0: computes the layer weight mean.
+        Args:
+            epochs: Number of epochs to train.
+            weight_logger: Logger function for track weight convergence given a layer name.
+            agent_jid: Agent's JID for logging.
+            current_round: Current algorithm round.
+            weight_id: Weight id of the layer or -1 to compute the layer weight mean.
+        """
+        if weight_logger is not None and agent_jid is not None and current_round is not None and weight_id is not None:
+            current_state = self.model.state_dict()
+            for layer in self.track_layers_weights:
+                layer_tensor: Tensor = current_state[layer]
+                is_layer_mean = weight_id < 0
+                if not is_layer_mean:
+                    weight = float(layer_tensor.flatten()[weight_id].item())
+                else:
+                    weight = float(layer_tensor.mean().item())
+                weight_logger(
+                    epoch + 1,
+                    layer,
+                    weight,
+                    weight_id,
+                    agent_jid,
+                    current_round,
+                )
+
+    def _check_gradients(self) -> None:
+        """
+        Checks if gradients are being computed for the model's parameters and logs a warning if they are not.
+        Remember to use it after calling loss.backward() and before optimizer.step().
+        """
+        logger = logging.getLogger(__name__)
+        no_gradients = True
+
+        for name, param in self.model.named_parameters():
+            if param.grad is None:
+                pass
+                # logger.warning(f"Gradient not computed for parameter: {name}")
+            else:
+                no_gradients = False
+
+        if no_gradients:
+            logger.warning(
+                "No gradients are being computed during training. Ensure loss.backward() is called and optimizer.step() is executed."
+            )
+
     def train(
         self,
         epochs: None | int = None,
         train_logger: None | Callable[[int, ModelMetrics, JID, int], None] = None,
-        weight_logger: None | Callable[[int, str, float, JID, int], None] = None,
+        weight_logger: None | Callable[[int, str, float, int, JID, int], None] = None,
         agent_jid: None | JID = None,
         current_round: None | int = None,
+        weight_id: int | None = None,
     ) -> list[ModelMetrics]:
         """
         Updates the model by training on the training dataset and optionally tracks specific weights.
@@ -80,6 +138,7 @@ class ModelManager:
             weight_logger: Logger function for track weight convergence given a layer name.
             agent_jid: Agent's JID for logging.
             current_round: Current algorithm round.
+            weight_id: Weight id of the layer or -1 to compute the layer weight mean.
         """
         # self.pretrain_state = copy.deepcopy(self.model.state_dict())
         self.__training = True
@@ -92,17 +151,13 @@ class ModelManager:
         try:
             for epoch in range(epochs):
                 # Log current weight state
-                if weight_logger is not None and agent_jid is not None and current_round is not None:
-                    current_state = self.model.state_dict()
-                    for layer in self.track_layers_weights:
-                        first_weight = float(current_state[layer].flatten()[0].item())
-                        weight_logger(
-                            epoch + 1,
-                            layer,
-                            first_weight,
-                            agent_jid,
-                            current_round,
-                        )
+                self.__log_weights(
+                    epoch=epoch,
+                    weight_logger=weight_logger,
+                    agent_jid=agent_jid,
+                    current_round=current_round,
+                    weight_id=weight_id,
+                )
 
                 # Start training
                 self.model.train()
@@ -123,6 +178,7 @@ class ModelManager:
                     outputs = self.model(images)
                     loss = self.criterion(outputs, labels)
                     loss.backward()
+                    self._check_gradients()
                     self.optimizer.step()
                     total_loss += loss.item()
                     _, predicted = torch.max(outputs.data, 1)
@@ -139,6 +195,15 @@ class ModelManager:
                 metrics.append(epoch_metric)
                 if train_logger is not None and agent_jid is not None and current_round is not None:
                     train_logger(epoch + 1, epoch_metric, agent_jid, current_round)
+
+                # Log current weight state
+                self.__log_weights(
+                    epoch=epoch,
+                    weight_logger=weight_logger,
+                    agent_jid=agent_jid,
+                    current_round=current_round,
+                    weight_id=weight_id,
+                )
 
             return metrics
 

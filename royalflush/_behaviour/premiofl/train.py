@@ -39,9 +39,10 @@ class TrainAndApplyConsensusState(State):
                 self.agent.logger.debug(f"[{self.agent.current_round}] Starting training...")
                 metrics_train = self.agent.model_manager.train(
                     train_logger=self.agent.nn_train_logger.log_train_epoch,
-                    weight_logger=self.agent.nn_convergence_logger.log_weights,
+                    weight_logger=self.agent.nn_convergence_logger.log_weight,
                     agent_jid=self.agent.jid,
                     current_round=self.agent.current_round,
+                    weight_id=-1,
                 )
 
                 metrics_validation = self.agent.model_manager.inference()

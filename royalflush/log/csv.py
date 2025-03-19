@@ -4,6 +4,8 @@ from pathlib import Path
 
 from spade.template import Template
 
+from .filter import RemoveUuidFilter
+
 
 class CsvLogManager(object, metaclass=ABCMeta):
     def __init__(
@@ -59,6 +61,7 @@ class CsvLogManager(object, metaclass=ABCMeta):
             )
             csv_handler.setLevel(self.level)
             csv_handler.setFormatter(self.formatter)
+            csv_handler.addFilter(RemoveUuidFilter())
             base_logger.setLevel(self.level)
             base_logger.addHandler(csv_handler)
 

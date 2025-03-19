@@ -18,7 +18,7 @@ class TestDataLoader(unittest.TestCase):
     def test_full_iid_equivalent_to_non_iid(self, num_clients: int = 2):
         iid_settings = IidDatasetSettings(seed=42)
         for generator in self.get_generators():
-            iid = generator.get_dataloaders(settings=iid_settings)
+            iid = generator.get_dataloaders(dataset_settings=iid_settings)
             train_batches = len(iid.train)
 
             diritchet_batches = 0
@@ -26,7 +26,7 @@ class TestDataLoader(unittest.TestCase):
                 non_iid_settings = NonIidDirichletDatasetSettings(
                     seed=42, num_clients=num_clients, client_index=client_index
                 )
-                non_iids = generator.get_dataloaders(settings=non_iid_settings)
+                non_iids = generator.get_dataloaders(dataset_settings=non_iid_settings)
                 diritchet_batches += len(non_iids.train)
 
             assert (
@@ -39,8 +39,8 @@ class TestDataLoader(unittest.TestCase):
         )
         iid_full_settings = IidDatasetSettings(seed=42)
         for generator in self.get_generators():
-            full = generator.get_dataloaders(settings=iid_full_settings)
-            reduced = generator.get_dataloaders(settings=iid_reduced_settings)
+            full = generator.get_dataloaders(dataset_settings=iid_full_settings)
+            reduced = generator.get_dataloaders(dataset_settings=iid_reduced_settings)
             batches = [
                 (len(full.train), len(reduced.train)),
                 (len(full.validation), len(reduced.validation)),
@@ -53,8 +53,8 @@ class TestDataLoader(unittest.TestCase):
         iid_reduced_settings = IidDatasetSettings(seed=42, train_samples_percent=new_size)
         non_iid_settings = NonIidDirichletDatasetSettings(seed=42, num_clients=2, client_index=1)
         for generator in self.get_generators():
-            iid = generator.get_dataloaders(settings=iid_reduced_settings)
-            non_iid = generator.get_dataloaders(settings=non_iid_settings)
+            iid = generator.get_dataloaders(dataset_settings=iid_reduced_settings)
+            non_iid = generator.get_dataloaders(dataset_settings=non_iid_settings)
             train_batches = len(iid.test)
             diritchet_batches = len(non_iid.test)
             assert (

@@ -171,7 +171,7 @@ class NnConvergenceLogManager(CsvLogManager):
 
     @staticmethod
     def get_header() -> str:
-        return "log_timestamp,log_name,algorithm_round,agent,epoch,layer,weight"
+        return "log_timestamp,log_name,algorithm_round,agent,epoch,layer,weight,weight_id"
 
     @staticmethod
     def get_template() -> Template:
@@ -184,6 +184,8 @@ class NnConvergenceLogManager(CsvLogManager):
         epoch: int,
         layer: str,
         weight: float,
+        weight_id: int,
+        layer_mean: bool = False,
         level: None | int = logging.DEBUG,
     ) -> None:
         lvl = self.level if level is None else level
@@ -195,9 +197,20 @@ class NnConvergenceLogManager(CsvLogManager):
                 str(epoch),
                 layer,
                 str(weight),
+                str(-1 if layer_mean else weight_id),
             ]
         )
         self.logger.log(level=lvl, msg=msg)
 
-    def log_weights(self, epoch: int, layer: str, weight: float, agent_jid: JID, current_round: int) -> None:
-        self.log(current_round=current_round, agent=agent_jid, epoch=epoch, layer=layer, weight=weight)
+    def log_weight(
+        self, epoch: int, layer: str, weight: float, weight_id: int, agent_jid: JID, current_round: int
+    ) -> None:
+        self.log(
+            current_round=current_round,
+            agent=agent_jid,
+            epoch=epoch,
+            layer=layer,
+            weight=weight,
+            weight_id=weight_id,
+            layer_mean=weight_id < 0,
+        )

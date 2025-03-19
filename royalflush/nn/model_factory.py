@@ -1,3 +1,5 @@
+from typing import Optional
+
 from torch import nn
 from torch.optim import Adam
 
@@ -37,8 +39,12 @@ class ModelManagerFactory:
         if dataset == "mnist":
             input_dim = (1, 28, 28)
             out_classes = 10
-        if input_dim is None or out_classes is None:
-            raise RuntimeError("The dimension of the input/output of the ANN must be declared")
+        if input_dim is None and out_classes is None:
+            raise RuntimeError("The dimension of the input and output of the ANN must be declared")
+        if input_dim is None:
+            raise RuntimeError("The dimension of the input of the ANN must be declared")
+        if out_classes is None:
+            raise RuntimeError("The dimension of the output of the ANN must be declared")
 
         # ANNs
         if ann == "cnn5":
@@ -48,10 +54,12 @@ class ModelManagerFactory:
         raise NotImplementedError(f"ANN {ann} is not valid.")
 
     @staticmethod
-    def get_manager(dataset: str, settings: DatasetSettings, ann: str, training_epochs: int) -> ModelManager:
+    def get_manager(
+        dataset: str, settings: DatasetSettings, ann: str, training_epochs: int, seed: Optional[int]
+    ) -> ModelManager:
         generator = ModelManagerFactory.get_dataloader_generator(dataset=dataset)
-        dataloaders = generator.get_dataloaders(settings=settings)
-        RandomUtils.set_randomness(seed=settings.seed)
+        dataloaders = generator.get_dataloaders(dataset_settings=settings)
+        RandomUtils.set_randomness(seed=seed)
         model = ModelManagerFactory.get_ann(dataset=dataset, ann=ann)
         return ModelManager(
             model=model,
@@ -74,7 +82,7 @@ class ModelManagerFactory:
     @staticmethod
     def get_cifar10_mlp(settings: DatasetSettings) -> ModelManager:
         cifar10_generator = Cifar10DataLoaderGenerator()
-        dataloaders = cifar10_generator.get_dataloaders(settings=settings)
+        dataloaders = cifar10_generator.get_dataloaders(dataset_settings=settings)
         RandomUtils.set_randomness(seed=settings.seed)
         model = CifarMlp(input_dim=(3, 32, 32), out_classes=10)
         return ModelManager(
@@ -98,7 +106,7 @@ class ModelManagerFactory:
     @staticmethod
     def get_cifar100_mlp(settings: DatasetSettings) -> ModelManager:
         cifar100_generator = Cifar100DataLoaderGenerator()
-        dataloaders = cifar100_generator.get_dataloaders(settings=settings)
+        dataloaders = cifar100_generator.get_dataloaders(dataset_settings=settings)
         RandomUtils.set_randomness(seed=settings.seed)
         model = CifarMlp(input_dim=(3, 32, 32), out_classes=100)
         return ModelManager(
@@ -122,7 +130,7 @@ class ModelManagerFactory:
     @staticmethod
     def get_cifar10_cnn5(settings: DatasetSettings) -> ModelManager:
         cifar10_generator = Cifar10DataLoaderGenerator()
-        dataloaders = cifar10_generator.get_dataloaders(settings=settings)
+        dataloaders = cifar10_generator.get_dataloaders(dataset_settings=settings)
         RandomUtils.set_randomness(seed=settings.seed)
         model = CNN5(input_dim=(3, 32, 32), out_classes=10)
         return ModelManager(
@@ -146,7 +154,7 @@ class ModelManagerFactory:
     @staticmethod
     def get_cifar100_cnn5(settings: DatasetSettings) -> ModelManager:
         cifar100_generator = Cifar100DataLoaderGenerator()
-        dataloaders = cifar100_generator.get_dataloaders(settings=settings)
+        dataloaders = cifar100_generator.get_dataloaders(dataset_settings=settings)
         RandomUtils.set_randomness(seed=settings.seed)
         model = CNN5(input_dim=(3, 32, 32), out_classes=100)
         return ModelManager(

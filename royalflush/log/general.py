@@ -1,21 +1,7 @@
 import logging
-import re
 from pathlib import Path
 
-
-class RemoveUuid4Filter(logging.Filter):
-    def __init__(self, name: str = "") -> None:
-        super().__init__(name)
-        self.uuid_regex = re.compile(r"__(?P<uuid>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})")
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        # Remove the UUID portion
-        record.name = self.uuid_regex.sub(
-            "",
-            record.name.replace("rf.log.", "").replace("agent.", ""),
-        )
-        record.msg = self.uuid_regex.sub("", record.msg)
-        return True
+from .filter import RemoveUuid4AndLogPrefixFilter, RemoveUuidFilter
 
 
 class GeneralLogManager:
@@ -29,7 +15,7 @@ class GeneralLogManager:
         self.base_logger_name = base_logger_name
         self.extra_logger_name = extra_logger_name
         self.level = level
-        self.terminal_formatter = logging.Formatter("%(asctime)s, %(name)s: %(message)s", datefmt="%M:%S")
+        self.terminal_formatter = logging.Formatter("%(asctime)s, %(name)s: %(message)s", datefmt="%H:%M:%S")
         self.formatter = logging.Formatter("%(asctime)s, %(name)s, %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
         self.logger = self.__get_logger()
         self.is_set_up = False
@@ -62,11 +48,12 @@ class GeneralLogManager:
             console_handler = logging.StreamHandler()
             console_handler.setLevel(self.level)
             console_handler.setFormatter(self.terminal_formatter)
-            console_handler.addFilter(RemoveUuid4Filter())
+            console_handler.addFilter(RemoveUuid4AndLogPrefixFilter())
 
             file_handler = logging.FileHandler(log_path)
             file_handler.setLevel(self.level)
             file_handler.setFormatter(self.formatter)
+            file_handler.addFilter(RemoveUuidFilter())
 
             # Attach handlers to the loggers for each agent category
             logger = logging.getLogger(self.base_logger_name)

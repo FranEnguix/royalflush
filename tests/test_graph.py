@@ -49,7 +49,7 @@ class TestGraph(unittest.TestCase):
         gml_manager.visualize(f"{out}.html")
 
     def test_tiny_complete_graph(self) -> None:
-        num_agents = 3
+        num_agents = 2
         gml_manager = GraphManager()
 
         # Complete graph
@@ -63,7 +63,7 @@ class TestGraph(unittest.TestCase):
 
     def test_generated_graphs(self) -> None:
         gml_manager = GraphManager()
-        for num_agents in [10, 50, 100]:
+        for num_agents in [3, 4, 5, 8, 10, 20, 25, 50, 75, 100]:
             agents = [JID.fromstr(f"a{i}@localhost") for i in range(num_agents)]
 
             # Generate a ring structure
@@ -82,10 +82,11 @@ class TestGraph(unittest.TestCase):
             gml_manager.import_from_gml(f"{out}.gml")
             gml_manager.visualize(f"{out}.html")
 
-            # Small-world graph
-            out = self.folder / f"{num_agents:03}_agents_sw"
-            out.resolve()
-            gml_manager.generate_small_world(agents, k=4, p=0.3)
-            gml_manager.export_to_gml(f"{out}.gml")
-            gml_manager.import_from_gml(f"{out}.gml")
-            gml_manager.visualize(f"{out}.html")
+            if num_agents > 3:
+                # Small-world graph
+                out = self.folder / f"{num_agents:03}_agents_sw"
+                out.resolve()
+                gml_manager.generate_small_world(agents, k=4, p=0.3)
+                gml_manager.export_to_gml(f"{out}.gml")
+                gml_manager.import_from_gml(f"{out}.gml")
+                gml_manager.visualize(f"{out}.html")
