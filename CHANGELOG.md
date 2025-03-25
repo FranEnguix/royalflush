@@ -11,6 +11,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Improved UUID4 log filtering with a dedicated class.
 - Auto-fix graph maximum order when nodes < 2.
 
+### Changed  
+- Weight convergence is now logged based on time instead of epochs and algorithm rounds.  
+- Consensus now uses only the most recent weights.
+- Suppressed SPADE warning messages.
+
 ### Fixed
 - Removed Softmax from CNN output.
 - Corrected tensor order in consensus formula.

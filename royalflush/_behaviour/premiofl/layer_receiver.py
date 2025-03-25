@@ -36,7 +36,7 @@ class LayerReceiverBehaviour(CyclicBehaviour):
 
             if not consensus_tr.sent_time_z:
                 error_msg = (
-                    f"[{self.agent.current_round}] Consensus message from {msg.sender.bare()} without " + "timestamp."
+                    f"[{self.agent.current_round}] Consensus message from {msg.sender.bare()} without timestamp."
                 )
                 self.agent.logger.exception(error_msg)
                 raise ValueError(error_msg)

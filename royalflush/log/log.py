@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .algorithm import AlgorithmLogManager
+from .data import DataSplitLogManager
 from .general import GeneralLogManager
 from .message import MessageLogManager
 from .nn import NnConvergenceLogManager, NnInferenceLogManager, NnTrainLogManager
@@ -14,7 +15,7 @@ def setup_loggers(
     datetime_mark: bool = True,
     general_level: int = logging.DEBUG,
     csv_level: int = logging.DEBUG,
-    spade_level: int = logging.WARNING,
+    spade_level: int = logging.ERROR,
 ) -> None:
     log_folder = Path(log_folder_path)
     if datetime_mark:
@@ -23,10 +24,11 @@ def setup_loggers(
         log_folder = log_folder / str(uuid.uuid4()).replace("-", "_")
     log_folder = log_folder / "raw"
 
-    # logging.getLogger("spade").setLevel(spade_level)
+    logging.getLogger("spade").setLevel(spade_level)
     GeneralLogManager(level=general_level).setup(folder_name=log_folder, file_name="general.log")
     AlgorithmLogManager(level=csv_level).setup(folder_name=log_folder, file_name="algorithm.csv")
     NnInferenceLogManager(level=csv_level).setup(folder_name=log_folder, file_name="nn_inference.csv")
     NnTrainLogManager(level=csv_level).setup(folder_name=log_folder, file_name="nn_train.csv")
     NnConvergenceLogManager(level=csv_level).setup(folder_name=log_folder, file_name="nn_convergence.csv")
     MessageLogManager(level=csv_level).setup(folder_name=log_folder, file_name="message.csv")
+    DataSplitLogManager(level=csv_level).setup(folder_name=log_folder, file_name="data_split.csv")

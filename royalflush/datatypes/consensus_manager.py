@@ -1,12 +1,13 @@
 import asyncio
 from datetime import datetime, timedelta, timezone
 from queue import Queue
-from typing import OrderedDict
+from typing import Optional, OrderedDict
 
 from aioxmpp import JID
 from torch import Tensor
 
 from ..datatypes.models import ModelManager
+from ..log.nn import NnConvergenceLogManager
 from .consensus import Consensus
 
 
@@ -22,6 +23,8 @@ class ConsensusManager:
         wait_for_responses_timeout: float = 2 * 60,
         epsilon_margin: float = 0.05,
         consensus_iterations: int = 1,
+        logger: Optional[NnConvergenceLogManager] = None,
+        only_one_consensus_model_per_agent: bool = True,
     ) -> None:
         self.model_manager = model_manager
         self.max_order = max_order
@@ -38,6 +41,17 @@ class ConsensusManager:
         self.max_iterations = consensus_iterations
         self.__completed_iterations: int = 0
         self.__last_algorithm_iteration: int = -1
+        self.__logger = logger
+        self.only_one_consensus_model_per_agent = only_one_consensus_model_per_agent
+        self.latest_consensus_by_agent: dict[str, Consensus] = {}  # str -> bare JID
+
+    @property
+    def logger(self) -> Optional[NnConvergenceLogManager]:
+        return self.__logger
+
+    @logger.setter
+    def logger(self, value: NnConvergenceLogManager) -> None:
+        self.__logger = value
 
     def prepare_replies_to_send(self) -> list[tuple[Consensus, str | None]]:
         responses: list[tuple[Consensus, str | None]] = []
@@ -61,7 +75,14 @@ class ConsensusManager:
             del self.waiting_responses[consensus.sender.bare()]
         elif consensus.request_reply:
             self.to_response.put((consensus, thread))
-        self.received_consensus.put(consensus)
+
+        if self.only_one_consensus_model_per_agent and consensus.sender:
+            sender_bare = str(consensus.sender.bare())
+            # Replace the existing entry
+            self.latest_consensus_by_agent[sender_bare] = consensus
+            self._rebuild_received_consensus_queue()
+        else:
+            self.received_consensus.put(consensus)
 
     async def wait_receive_consensus(self, timeout: None | float = None) -> bool:
         to = timeout if timeout is not None else self.wait_for_responses_timeout
@@ -92,10 +113,23 @@ class ConsensusManager:
         consumed_consensus_transmissions: list[Consensus] = []
         while self.received_consensus.qsize() > 0:
             ct = self.received_consensus.get()
+            sender_bare = str(ct.sender.bare()) if ct.sender else None
+            if self.only_one_consensus_model_per_agent and sender_bare in self.latest_consensus_by_agent:
+                del self.latest_consensus_by_agent[sender_bare]
+
+            if self.__logger is not None:
+                current_state: dict[str, Tensor] = self.model_manager.model.state_dict()
+                self.__logger.log_weights(
+                    timestamp_z=datetime.now(tz=timezone.utc), description="PRE-CONSENSUS", model=current_state
+                )
             ct.processed_start_time_z = datetime.now(tz=timezone.utc)
             self.apply_consensus(ct)
-            # TODO: Log weights here
             ct.processed_end_time_z = datetime.now(tz=timezone.utc)
+            if self.__logger is not None:
+                current_state = self.model_manager.model.state_dict()
+                self.__logger.log_weights(
+                    timestamp_z=ct.processed_end_time_z, description="POST-CONSENSUS", model=current_state
+                )
             consumed_consensus_transmissions.append(ct)
             self.received_consensus.task_done()
         return consumed_consensus_transmissions
@@ -160,3 +194,16 @@ class ConsensusManager:
             self.__last_algorithm_iteration = algorithm_rounds
             self.__completed_iterations = 0
         return self.__completed_iterations
+
+    def _rebuild_received_consensus_queue(self) -> None:
+        # Clear the queue
+        while not self.received_consensus.empty():
+            try:
+                self.received_consensus.get_nowait()
+                self.received_consensus.task_done()
+            except Exception:
+                break
+
+        # Rebuild with the latest ones
+        for consensus in self.latest_consensus_by_agent.values():
+            self.received_consensus.put(consensus)

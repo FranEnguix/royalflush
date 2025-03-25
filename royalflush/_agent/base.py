@@ -18,6 +18,7 @@ from ..datatypes.consensus import Consensus
 from ..datatypes.consensus_manager import ConsensusManager
 from ..datatypes.models import ModelManager
 from ..log.algorithm import AlgorithmLogManager
+from ..log.data import DataSplitLogManager
 from ..log.general import GeneralLogManager
 from ..log.message import MessageLogManager
 from ..log.nn import NnConvergenceLogManager, NnInferenceLogManager, NnTrainLogManager
@@ -278,8 +279,8 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         web_port: int = 10000,
         verify_security: bool = False,
     ):
-
-        extra_name = f"agent.{JID.fromstr(jid).localpart}"
+        localpart: str = str(JID.fromstr(jid).localpart)
+        extra_name = f"agent.{localpart}"
         self.consensus_manager = consensus_manager
         self.model_manager = model_manager
         self.similarity_manager = similarity_manager
@@ -291,6 +292,19 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         self.nn_train_logger = NnTrainLogManager(extra_logger_name=extra_name)
         self.nn_inference_logger = NnInferenceLogManager(extra_logger_name=extra_name)
         self.nn_convergence_logger = NnConvergenceLogManager(extra_logger_name=extra_name)
+        self.data_split_logger = DataSplitLogManager(extra_logger_name=extra_name)
+
+        self.nn_train_logger.agent = localpart
+        self.nn_inference_logger.agent = localpart
+        self.nn_convergence_logger.agent = localpart
+        self.data_split_logger.agent = localpart
+        self.nn_convergence_logger.tracked_weights = [("rf_all_layers", -1)]
+
+        self.consensus_manager.logger = self.nn_convergence_logger
+
+        self.data_split_logger.log_split(dataloader=self.model_manager.dataloaders.train, description="train")
+        self.data_split_logger.log_split(dataloader=self.model_manager.dataloaders.validation, description="validation")
+        self.data_split_logger.log_split(dataloader=self.model_manager.dataloaders.test, description="test")
 
         self.fsm_behaviour = PremioFsmBehaviour()
         self.layer_receiver_behaviour = LayerReceiverBehaviour()

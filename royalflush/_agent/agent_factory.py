@@ -42,7 +42,7 @@ def create_dataset_settings(distribution: str, num_clients: int, client_index: i
             client_index=client_index,
             dirichlet_alpha=alpha,
         )
-    raise NotImplementedError("Distribution of dataset does not exist.")
+    raise NotImplementedError(f"Distribution of dataset {dist_lower} does not exist.")
 
 
 def create_experiment_agent(

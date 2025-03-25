@@ -3,11 +3,9 @@ import copy
 import logging
 import pickle
 from datetime import datetime, timezone
-from typing import Callable, OrderedDict
+from typing import OrderedDict
 
 import torch
-from aioxmpp import JID
-from sklearn.metrics import f1_score, precision_score, recall_score
 from torch import Tensor, nn
 from torch.nn import Parameter
 from torch.nn.modules.loss import _Loss
@@ -15,6 +13,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from ..datatypes.metrics import ModelMetrics
+from ..log.nn import NnConvergenceLogManager, NnTrainLogManager
 
 # from ..utils.random import RandomUtils
 from .data import DataLoaders
@@ -66,41 +65,6 @@ class ModelManager:
     def replace_all_layers(self, new_layers: OrderedDict[str, Tensor]) -> None:
         self.model.load_state_dict(state_dict=new_layers)
 
-    def __log_weights(
-        self,
-        epoch: int,
-        weight_logger: None | Callable[[int, str, float, int, JID, int], None] = None,
-        agent_jid: None | JID = None,
-        current_round: None | int = None,
-        weight_id: int | None = None,
-    ) -> None:
-        """
-        Log current weight state. If weight_id < 0: computes the layer weight mean.
-        Args:
-            epochs: Number of epochs to train.
-            weight_logger: Logger function for track weight convergence given a layer name.
-            agent_jid: Agent's JID for logging.
-            current_round: Current algorithm round.
-            weight_id: Weight id of the layer or -1 to compute the layer weight mean.
-        """
-        if weight_logger is not None and agent_jid is not None and current_round is not None and weight_id is not None:
-            current_state = self.model.state_dict()
-            for layer in self.track_layers_weights:
-                layer_tensor: Tensor = current_state[layer]
-                is_layer_mean = weight_id < 0
-                if not is_layer_mean:
-                    weight = float(layer_tensor.flatten()[weight_id].item())
-                else:
-                    weight = float(layer_tensor.mean().item())
-                weight_logger(
-                    epoch + 1,
-                    layer,
-                    weight,
-                    weight_id,
-                    agent_jid,
-                    current_round,
-                )
-
     def _check_gradients(self) -> None:
         """
         Checks if gradients are being computed for the model's parameters and logs a warning if they are not.
@@ -109,36 +73,31 @@ class ModelManager:
         logger = logging.getLogger(__name__)
         no_gradients = True
 
+        params = []
         for name, param in self.model.named_parameters():
             if param.grad is None:
-                pass
+                params.append(name)
                 # logger.warning(f"Gradient not computed for parameter: {name}")
             else:
                 no_gradients = False
 
         if no_gradients:
             logger.warning(
-                "No gradients are being computed during training. Ensure loss.backward() is called and optimizer.step() is executed."
+                f"No gradients are being computed during training. Ensure loss.backward() is called and optimizer.step() is executed. None gradients for parameters: {params}"
             )
 
     def train(
         self,
         epochs: None | int = None,
-        train_logger: None | Callable[[int, ModelMetrics, JID, int], None] = None,
-        weight_logger: None | Callable[[int, str, float, int, JID, int], None] = None,
-        agent_jid: None | JID = None,
-        current_round: None | int = None,
-        weight_id: int | None = None,
+        train_logger: None | NnTrainLogManager = None,
+        weight_logger: None | NnConvergenceLogManager = None,
     ) -> list[ModelMetrics]:
         """
         Updates the model by training on the training dataset and optionally tracks specific weights.
         Args:
             epochs: Number of epochs to train.
-            train_logger: Logger function for metrics.
-            weight_logger: Logger function for track weight convergence given a layer name.
-            agent_jid: Agent's JID for logging.
-            current_round: Current algorithm round.
-            weight_id: Weight id of the layer or -1 to compute the layer weight mean.
+            train_logger: Logger for metrics.
+            weight_logger: Logger for track weight convergence.
         """
         # self.pretrain_state = copy.deepcopy(self.model.state_dict())
         self.__training = True
@@ -150,20 +109,21 @@ class ModelManager:
         # Training loop
         try:
             for epoch in range(epochs):
-                # Log current weight state
-                self.__log_weights(
-                    epoch=epoch,
-                    weight_logger=weight_logger,
-                    agent_jid=agent_jid,
-                    current_round=current_round,
-                    weight_id=weight_id,
-                )
+                if weight_logger is not None:
+                    current_state: dict[str, Tensor] = self.model.state_dict()
+                    weight_logger.log_weights(
+                        timestamp_z=datetime.now(tz=timezone.utc), description="PRE-TRAIN", model=current_state
+                    )
 
                 # Start training
                 self.model.train()
+                # total_loss: float = 0.0
+                # correct: int = 0
+                # total_samples: int = 0
+
+                predicted_labels: list[int] = []
+                true_labels: list[int] = []
                 total_loss: float = 0.0
-                correct: int = 0
-                total_samples: int = 0
 
                 images: Tensor
                 labels: Tensor
@@ -172,7 +132,8 @@ class ModelManager:
                 predicted: Tensor
 
                 init_time_z = datetime.now(tz=timezone.utc)
-                for images, labels in self.dataloaders.train:
+                dataloader: DataLoader = self.dataloaders.train
+                for images, labels in dataloader:
                     images, labels = images.to(self.device), labels.to(self.device)
                     self.optimizer.zero_grad()
                     outputs = self.model(images)
@@ -182,28 +143,36 @@ class ModelManager:
                     self.optimizer.step()
                     total_loss += loss.item()
                     _, predicted = torch.max(outputs.data, 1)
-                    total_samples += labels.size(0)
-                    correct += int((predicted == labels).sum().item())
+                    predicted_labels.extend(predicted.cpu().numpy().tolist())
+                    true_labels.extend(labels.cpu().numpy().tolist())
+                    # total_samples += labels.size(0)
+                    # correct += int((predicted == labels).sum().item())
 
                 # Log metrics after each epoch
-                epoch_metric: ModelMetrics = ModelMetrics(
-                    accuracy=(correct / total_samples),
-                    loss=(total_loss / len(self.dataloaders.train)),
+                epoch_metric: ModelMetrics = ModelMetrics.compute_metrics(
+                    true_labels=true_labels,
+                    predicted_labels=predicted_labels,
+                    total_loss=total_loss,
+                    num_batches=len(dataloader),
                     start_time_z=init_time_z,
                     end_time_z=datetime.now(tz=timezone.utc),
                 )
-                metrics.append(epoch_metric)
-                if train_logger is not None and agent_jid is not None and current_round is not None:
-                    train_logger(epoch + 1, epoch_metric, agent_jid, current_round)
 
-                # Log current weight state
-                self.__log_weights(
-                    epoch=epoch,
-                    weight_logger=weight_logger,
-                    agent_jid=agent_jid,
-                    current_round=current_round,
-                    weight_id=weight_id,
-                )
+                # epoch_metric: ModelMetrics = ModelMetrics(
+                #     accuracy=(correct / total_samples),
+                #     loss=(total_loss / len(dataloader)),
+                #     start_time_z=init_time_z,
+                #     end_time_z=datetime.now(tz=timezone.utc),
+                # )
+                metrics.append(epoch_metric)
+                if train_logger is not None:
+                    train_logger.log_train_epoch(epoch=epoch + 1, train=epoch_metric)
+
+                if weight_logger is not None:
+                    current_state = self.model.state_dict()
+                    weight_logger.log_weights(
+                        timestamp_z=datetime.now(tz=timezone.utc), description="POST-TRAIN", model=current_state
+                    )
 
             return metrics
 
@@ -217,8 +186,8 @@ class ModelManager:
 
         # Validation
         self.model.eval()
-        correct: int = 0
-        total: int = 0
+        # correct: int = 0
+        # total: int = 0
         predicted_labels: list[int] = []
         true_labels: list[int] = []
         total_loss: float = 0.0
@@ -238,20 +207,29 @@ class ModelManager:
                 total_loss += loss.item()
 
                 _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += int((predicted == labels).sum().item())
-                predicted_labels.extend(predicted.cpu().numpy())
-                true_labels.extend(labels.cpu().numpy())
+                # total += labels.size(0)
+                # correct += int((predicted == labels).sum().item())
+                predicted_labels.extend(predicted.cpu().numpy().tolist())
+                true_labels.extend(labels.cpu().numpy().tolist())
 
         end_time_z: datetime = datetime.now(tz=timezone.utc)
-        accuracy: float = correct / total
-        resulting_loss: float = total_loss / len(dataloader)
-        metrics: ModelMetrics = ModelMetrics(
-            accuracy=accuracy,
-            loss=resulting_loss,
+        # accuracy: float = correct / total
+        # resulting_loss: float = total_loss / len(dataloader)
+
+        metrics: ModelMetrics = ModelMetrics.compute_metrics(
+            true_labels=true_labels,
+            predicted_labels=predicted_labels,
+            total_loss=total_loss,
+            num_batches=len(dataloader),
             start_time_z=init_time_z,
             end_time_z=end_time_z,
         )
+        # metrics: ModelMetrics = ModelMetrics(
+        #     accuracy=accuracy,
+        #     loss=resulting_loss,
+        #     start_time_z=init_time_z,
+        #     end_time_z=end_time_z,
+        # )
         return metrics
 
     def inference(self) -> ModelMetrics:
