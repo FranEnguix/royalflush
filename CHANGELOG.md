@@ -7,9 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-04-15
+
 ### Added
 - Improved UUID4 log filtering with a dedicated class.
-- Auto-fix graph maximum order when nodes < 2.
+- Auto-fix graph maximum order when nodes < 2 to increase the convergence speed.
 
 ### Changed  
 - Weight convergence is now logged based on time instead of epochs and algorithm rounds.  
@@ -19,8 +21,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 - Removed Softmax from CNN output.
 - Corrected tensor order in consensus formula.
+- Corrected tests for the new consensus system.
 - Fixed a bug preventing program termination.
 - Improved `CHANGELOG.md` clarity.
+- Removed SimilarityVector messages in ACoL algorithm.
+- Removed ValueError if maximum order < 2.
 
 ## [0.3.5] - 2025-02-24
 

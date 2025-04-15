@@ -110,6 +110,7 @@ class ModelManager:
         try:
             for epoch in range(epochs):
                 if weight_logger is not None:
+                    weight_logger.epoch_or_iteration = epoch + 1
                     current_state: dict[str, Tensor] = self.model.state_dict()
                     weight_logger.log_weights(
                         timestamp_z=datetime.now(tz=timezone.utc), description="PRE-TRAIN", model=current_state
@@ -177,6 +178,8 @@ class ModelManager:
             return metrics
 
         finally:
+            if weight_logger is not None:
+                weight_logger.epoch_or_iteration = -1
             self.__training = False
 
     def _inference(self, dataloader: DataLoader) -> ModelMetrics:

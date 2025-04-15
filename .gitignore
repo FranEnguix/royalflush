@@ -169,4 +169,5 @@ plots/
 royalflush_datasets/
 royalflush_test_graphs/
 royalflush_*.txt
+e??.json
 test_experiment.json

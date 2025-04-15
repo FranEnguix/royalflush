@@ -144,7 +144,7 @@ class NnTrainLogManager(CsvLogManager):
 
     @staticmethod
     def get_header() -> str:
-        return "log_timestamp,log_name,algorithm_round,start_timestamp,agent,seconds_to_complete,epoch,accuracy,loss"
+        return "log_timestamp,log_name,algorithm_round,start_timestamp,agent,seconds_to_complete,epoch,accuracy,loss,precision,recall,f1_score"
 
     @staticmethod
     def get_template() -> Template:
@@ -156,6 +156,9 @@ class NnTrainLogManager(CsvLogManager):
         epoch: int,
         accuracy: float,
         loss: float,
+        precision: float,
+        recall: float,
+        f1_score: float,
         start_timestamp: None | datetime = None,
         level: None | int = logging.DEBUG,
     ) -> None:
@@ -171,6 +174,9 @@ class NnTrainLogManager(CsvLogManager):
                 str(epoch),
                 str(accuracy),
                 str(loss),
+                str(precision),
+                str(recall),
+                str(f1_score),
             ]
         )
         self.logger.log(level=lvl, msg=msg)
@@ -183,6 +189,9 @@ class NnTrainLogManager(CsvLogManager):
                 epoch=epoch,
                 accuracy=train.accuracy,
                 loss=train.loss,
+                precision=train.precision or -1,
+                recall=train.recall or -1,
+                f1_score=train.f1_score or -1,
                 start_timestamp=train.start_time_z,
             )
 
@@ -201,7 +210,7 @@ class NnConvergenceLogManager(CsvLogManager):
     ):
         self._tracked_weights: list[tuple[str, int]] = []
         self._current_round: int = -1
-        self._epoch: int = -1
+        self._epoch_or_iteration: int = -1
         super().__init__(
             base_logger_name,
             extra_logger_name,
@@ -249,16 +258,16 @@ class NnConvergenceLogManager(CsvLogManager):
         self._tracked_weights = value
 
     @property
-    def epoch(self) -> int:
-        return self._epoch
+    def epoch_or_iteration(self) -> int:
+        return self._epoch_or_iteration
 
-    @epoch.setter
-    def epoch(self, value: int) -> None:
-        self._epoch = value
+    @epoch_or_iteration.setter
+    def epoch_or_iteration(self, value: int) -> None:
+        self._epoch_or_iteration = value
 
     @staticmethod
     def get_header() -> str:
-        return "log_timestamp,log_name,agent,timestamp,description,algorithm_round,epoch,layer,weight,weight_id"
+        return "log_timestamp,log_name,agent,timestamp,description,algorithm_round,epoch_or_iteration,layer,weight,weight_id"
 
     @staticmethod
     def get_template() -> Template:
@@ -282,7 +291,7 @@ class NnConvergenceLogManager(CsvLogManager):
                 dt_str,
                 description,
                 str(self._current_round),
-                str(self._epoch),
+                str(self._epoch_or_iteration),
                 layer,
                 str(weight),
                 str(-1 if layer_mean else weight_id),
@@ -290,7 +299,7 @@ class NnConvergenceLogManager(CsvLogManager):
         )
         self.logger.log(level=lvl, msg=msg)
 
-    def log_weight(
+    def _log_weight(
         self,
         timestamp_z: Optional[datetime],
         description: str,
@@ -316,6 +325,6 @@ class NnConvergenceLogManager(CsvLogManager):
                 weight = float(layer_tensor.flatten()[weight_id].item())
             else:
                 weight = float(layer_tensor.mean().item())
-            self.log_weight(
+            self._log_weight(
                 timestamp_z=timestamp_z, description=description, layer=layer, weight=weight, weight_id=weight_id
             )

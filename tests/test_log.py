@@ -4,6 +4,7 @@ import sys
 import spade
 from aioxmpp import JID
 
+from royalflush.datatypes import ModelMetrics
 from royalflush.log import (
     AlgorithmLogManager,
     GeneralLogManager,
@@ -27,44 +28,49 @@ def test_fill_logs():
 
     sender = JID.fromstr("sender@localhost")
     to = JID.fromstr("to@localhost")
-    logger = MessageLogManager(extra_logger_name="test")
+    message_logger = MessageLogManager(extra_logger_name="test")
     for i in range(15):
-        logger.log(current_round=100 + i, sender=sender, to=to, msg_type="SEND", size=250_000)
-    general_logger.info(f"Handlers: {logger.logger.handlers}")
-    general_logger.info(f"Effective Level: {logger.logger.getEffectiveLevel()}")
+        message_logger.log(current_round=100 + i, sender=sender, to=to, msg_type="SEND", size=250_000)
+    general_logger.info(f"Handlers: {message_logger.logger.handlers}")
+    general_logger.info(f"Effective Level: {message_logger.logger.getEffectiveLevel()}")
 
-    logger = NnTrainLogManager(extra_logger_name="test")
+    train_logger = NnTrainLogManager(extra_logger_name="test")
     for i in range(20):
-        logger.log(
-            current_round=100,
-            agent=sender,
+        train_logger.log(
             seconds=random.random() * 10,
             epoch=i,
             accuracy=random.random(),
             loss=random.random(),
+            precision=random.random(),
+            recall=random.random(),
+            f1_score=random.random(),
         )
-    general_logger.info(f"Handlers: {logger.logger.handlers}")
-    general_logger.info(f"Effective Level: {logger.logger.getEffectiveLevel()}")
+    general_logger.info(f"Handlers: {train_logger.logger.handlers}")
+    general_logger.info(f"Effective Level: {train_logger.logger.getEffectiveLevel()}")
 
-    logger = NnInferenceLogManager(extra_logger_name="test")
+    inference_logger = NnInferenceLogManager(extra_logger_name="test")
     for i in range(15):
-        logger.log(
-            current_round=100 + i,
-            agent=sender,
-            seconds=random.random() * 100,
-            epochs=15,
-            mean_training_accuracy=random.random(),
-            mean_training_loss=random.random(),
-            validation_accuracy=random.random(),
-            validation_loss=random.random(),
-            test_accuracy=random.random(),
-            test_loss=random.random(),
+        inference_logger.log(
+            metrics_validation=ModelMetrics(
+                accuracy=random.random(),
+                loss=random.random(),
+                precision=random.random(),
+                recall=random.random(),
+                f1_score=random.random(),
+            ),
+            metrics_test=ModelMetrics(
+                accuracy=random.random(),
+                loss=random.random(),
+                precision=random.random(),
+                recall=random.random(),
+                f1_score=random.random(),
+            ),
         )
-    general_logger.info(f"Handlers: {logger.logger.handlers}")
-    general_logger.info(f"Effective Level: {logger.logger.getEffectiveLevel()}")
+    general_logger.info(f"Handlers: {inference_logger.logger.handlers}")
+    general_logger.info(f"Effective Level: {inference_logger.logger.getEffectiveLevel()}")
 
-    logger = AlgorithmLogManager(extra_logger_name="algorithm")
+    algorithm_logger = AlgorithmLogManager(extra_logger_name="algorithm")
     for i in range(15):
-        logger.log(current_round=100 + i, agent=sender, seconds=random.random() * 100)
-    general_logger.info(f"Handlers: {logger.logger.handlers}")
-    general_logger.info(f"Effective Level: {logger.logger.getEffectiveLevel()}")
+        algorithm_logger.log(current_round=100 + i, agent=sender, seconds=random.random() * 100)
+    general_logger.info(f"Handlers: {algorithm_logger.logger.handlers}")
+    general_logger.info(f"Effective Level: {algorithm_logger.logger.getEffectiveLevel()}")

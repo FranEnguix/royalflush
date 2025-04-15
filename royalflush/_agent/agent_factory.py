@@ -195,6 +195,8 @@ class AgentFactory:
                 function=EuclideanDistanceFunction(),
                 wait_for_responses_timeout=5 * 60,
             )
+            if self.experiment.algorithm == "acol":
+                similarity_manager.function = None
 
             # Instantiate the FL agent
             agent = create_experiment_agent(

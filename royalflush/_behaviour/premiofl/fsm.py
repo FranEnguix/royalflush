@@ -4,7 +4,7 @@ from spade.behaviour import FSMBehaviour
 
 from .communication import CommunicationState
 from .consensus import ConsensusState
-from .train import TrainAndApplyConsensusState
+from .train import TrainState
 
 if TYPE_CHECKING:
     from ..._agent.base import PremioFlAgent
@@ -14,7 +14,7 @@ class PremioFsmBehaviour(FSMBehaviour):
 
     def __init__(self) -> None:
         self.agent: "PremioFlAgent"
-        self.train_state = TrainAndApplyConsensusState()
+        self.train_state = TrainState()
         self.send_state = CommunicationState()
         self.consensus_state = ConsensusState()
         super().__init__()

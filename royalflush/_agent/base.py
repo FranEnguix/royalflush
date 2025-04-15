@@ -385,7 +385,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
             selected_neighbours (list[JID]): The neighbours that will receive the layers of the neural network model.
 
         Raises:
-            NotImplementedError: This function must be overrided or it raises this error.
+            NotImplementedError: The function _assign_layers must be overrided or it raises this error.
 
         Returns:
             dict[JID, OrderedDict[str, Tensor]]: The keys are the neighbour's `aioxmpp.JID`s and the values are the

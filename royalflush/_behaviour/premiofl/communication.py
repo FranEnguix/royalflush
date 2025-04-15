@@ -43,7 +43,7 @@ class CommunicationState(State):
                     await self.send_layers(neighbour=n, layers=ls)
                     self.agent.logger.debug(
                         f"[{self.agent.current_round}] ({consensus_it_id}) Consensus layers of CommunicationState: "
-                        + f"{[jid.localpart for jid in selected_neighbours]} -> {list(ls.keys())}"
+                        + f"{n.bare().localpart} -> {list(ls.keys())}"
                     )
                     sent_layers = True
 

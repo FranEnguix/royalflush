@@ -99,7 +99,7 @@ class ConsensusManager:
             raise RuntimeError("Trying to apply consensus while training the model.")
         # full_model -> this agent's model.
         # layers -> layers to consensuate from the other agent.
-        consensuated_model = ConsensusManager.apply_consensus_to_layers(
+        consensuated_model = ConsensusManager.apply_consensus_to_model_with_layers(
             full_model=self.model_manager.model.state_dict(),
             layers=consensus.layers,
             max_order=self.max_order,
@@ -134,13 +134,51 @@ class ConsensusManager:
             self.received_consensus.task_done()
         return consumed_consensus_transmissions
 
+    # def apply_all_consensus(
+    #     self,
+    # ) -> list[Consensus]:
+    #     if self.__logger is not None:
+    #         self.__logger.epoch_or_iteration = self.__completed_iterations + 1
+    #     consumed_consensus_transmissions: list[Consensus] = []
+    #     while self.received_consensus.qsize() > 0:
+    #         ct = self.received_consensus.get()
+    #         sender_bare = str(ct.sender.bare()) if ct.sender else None
+
+    #         # Deduplicate consensus entries flag: self.only_one_consensus_model_per_agent
+    #         if self.only_one_consensus_model_per_agent and sender_bare in self.latest_consensus_by_agent:
+    #             del self.latest_consensus_by_agent[sender_bare]
+
+    #         # TODO: send the model to the other agent
+    #         self.do_consensus_and_log(ct=ct)
+
+    #         consumed_consensus_transmissions.append(ct)
+    #         self.received_consensus.task_done()
+    #     if self.__logger is not None:
+    #         self.__logger.epoch_or_iteration = -1
+    #     return consumed_consensus_transmissions
+
     @staticmethod
-    def apply_consensus_to_layers(
+    def apply_consensus_to_model_with_layers(
         full_model: OrderedDict[str, Tensor],
         layers: OrderedDict[str, Tensor],
         max_order: int = 2,
         epsilon_margin: float = 0.05,
     ) -> OrderedDict[str, Tensor]:
+        """
+        Applies a layer-wise consensus operation between a full model and a subset of layers from another agent.
+
+        For each layer present in both the full model and the subset, a consensuated version is computed using
+        `apply_consensus_to_tensors`. Layers not present in the subset remain unchanged.
+
+        Args:
+            full_model (OrderedDict[str, Tensor]): The full model from the main agent.
+            layers (OrderedDict[str, Tensor]): A dictionary of layers from another agent to be used for consensus.
+            max_order (int, optional): Maximum order of the graph network. Determines the consensus strength. Defaults to 2.
+            epsilon_margin (float, optional): Margin to ensure epsilon < 1 / max_order. Defaults to 0.05.
+
+        Returns:
+            OrderedDict[str, Tensor]: A new OrderedDict representing the consensuated model.
+        """
         consensuated_result: OrderedDict[str, Tensor] = OrderedDict()
         for key in full_model.keys():
             if key in layers:
@@ -168,13 +206,13 @@ class ConsensusManager:
             epsilon_margin (float, optional): A margin to be sure that epsilon < 1 / max_graph_degree. Defaults to 0.05.
 
         Raises:
-            ValueError: If `max_order` is lower than 2.
+            ValueError: If `max_order` is lower than 1.
 
         Returns:
             Tensor: The resulting Tensor after consensus.
         """
-        if max_order <= 1:
-            raise ValueError(f"Max order of consensus must be greater than 1 and it is {max_order}.")
+        if max_order <= 0:
+            raise ValueError(f"Max order of consensus must be greater than 0 and it is {max_order}.")
         # epsilon_margin because must be LESS than 1 / max_order
         epsilon = 1 / max_order - epsilon_margin
         return (1 - epsilon) * main + epsilon * foreign
@@ -207,3 +245,15 @@ class ConsensusManager:
         # Rebuild with the latest ones
         for consensus in self.latest_consensus_by_agent.values():
             self.received_consensus.put(consensus)
+
+    # def do_consensus_and_log(self, ct: Consensus) -> None:
+    #     self.log_weights(description="PRE-CONSENSUS", timestamp=datetime.now(tz=timezone.utc))
+    #     ct.processed_start_time_z = datetime.now(tz=timezone.utc)
+    #     self.apply_consensus(ct)
+    #     ct.processed_end_time_z = datetime.now(tz=timezone.utc)
+    #     self.log_weights(description="POST-CONSENSUS", timestamp=ct.processed_end_time_z)
+
+    # def log_weights(self, description: str, timestamp: datetime) -> None:
+    #     if self.__logger is not None:
+    #         current_state = self.model_manager.model.state_dict()
+    #         self.__logger.log_weights(timestamp_z=timestamp, description=description, model=current_state)

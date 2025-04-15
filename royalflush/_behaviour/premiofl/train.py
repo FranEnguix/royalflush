@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from ..._agent.base import PremioFlAgent
 
 
-class TrainAndApplyConsensusState(State):
+class TrainState(State):
     def __init__(self) -> None:
         self.agent: "PremioFlAgent"
         super().__init__()

@@ -49,7 +49,7 @@ class ModelManagerFactory:
         # ANNs
         if ann == "cnn5":
             return CNN5(input_dim=input_dim, out_classes=out_classes)
-        if ann == "cifar_mlp":
+        if ann == "mlp":
             return CifarMlp(input_dim=input_dim, out_classes=out_classes)
         raise NotImplementedError(f"ANN {ann} is not valid.")
 
