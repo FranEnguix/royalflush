@@ -1,5 +1,5 @@
 import random
-from typing import OrderedDict
+from typing import Dict
 
 from aioxmpp import JID
 from torch import Tensor
@@ -55,10 +55,10 @@ class PmacoflMaxAgent(PremioFlAgent):
         my_vector: None | SimilarityVector,
         neighbours_vectors: dict[JID, SimilarityVector],
         selected_neighbours: list[JID],
-    ) -> dict[JID, OrderedDict[str, Tensor]]:
+    ) -> dict[JID, Dict[str, Tensor]]:
         if not my_vector:
             raise ValueError("PMACoFL algorithms must have a similarity function.")
-        result: dict[JID, OrderedDict[str, Tensor]] = {}
+        result: dict[JID, Dict[str, Tensor]] = {}
 
         for neighbour in selected_neighbours:
             neighbour_vector = neighbours_vectors[neighbour].vector
@@ -77,6 +77,6 @@ class PmacoflMaxAgent(PremioFlAgent):
 
             if max_layer:
                 layer_tensor = self.model_manager.model.state_dict()[max_layer]
-                result[neighbour] = OrderedDict({max_layer: layer_tensor})
+                result[neighbour] = Dict({max_layer: layer_tensor})
 
         return result

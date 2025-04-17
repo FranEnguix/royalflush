@@ -1,5 +1,5 @@
 import random
-from typing import OrderedDict
+from typing import Dict
 
 from aioxmpp import JID
 from torch import Tensor
@@ -21,5 +21,5 @@ class AcolAgent(PremioFlAgent):
         my_vector: None | SimilarityVector,
         neighbours_vectors: dict[JID, SimilarityVector],
         selected_neighbours: list[JID],
-    ) -> dict[JID, OrderedDict[str, Tensor]]:
+    ) -> dict[JID, Dict[str, Tensor]]:
         return {n: self.model_manager.model.state_dict() for n in selected_neighbours}

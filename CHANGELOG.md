@@ -7,6 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-04-17
+
+### Changed
+- Updated `pyproject.toml` to specify the license using the new recommended format.
+- Updated `README.md` with the installation information.
+
+### Fixed
+- Switched `OrderedDict` to `Dict` to fix mypy warnings.
+
 ## [0.4.0] - 2025-04-15
 
 ### Added

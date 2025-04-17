@@ -1,7 +1,7 @@
 import traceback
 from abc import ABCMeta, abstractmethod
 from queue import Queue
-from typing import TYPE_CHECKING, Optional, OrderedDict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from aioxmpp import JID, PresenceType
 from aioxmpp.stanza import Presence
@@ -356,7 +356,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         my_vector: None | SimilarityVector,
         neighbours_vectors: dict[JID, SimilarityVector],
         selected_neighbours: list[JID],
-    ) -> dict[JID, OrderedDict[str, Tensor]]:
+    ) -> dict[JID, Dict[str, Tensor]]:
         """
         Assigns which layers will be sent to each neighbour. In the paper this function is coined as `S_L_N`.
 
@@ -369,7 +369,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
             NotImplementedError: This function must be overrided or it raises this error.
 
         Returns:
-            dict[JID, OrderedDict[str, Tensor]]: The keys are the neighbour's `aioxmpp.JID`s and the values are the
+            dict[JID, Dict[str, Tensor]]: The keys are the neighbour's `aioxmpp.JID`s and the values are the
             layer names with the `torch.Tensor` weights or biases.
         """
         raise NotImplementedError
@@ -377,7 +377,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
     def assign_layers(
         self,
         selected_neighbours: list[JID],
-    ) -> dict[JID, OrderedDict[str, Tensor]]:
+    ) -> dict[JID, Dict[str, Tensor]]:
         """
         Assigns which layers will be sent to each neighbour. In the paper this function is coined as `S_L_N`.
 
@@ -388,7 +388,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
             NotImplementedError: The function _assign_layers must be overrided or it raises this error.
 
         Returns:
-            dict[JID, OrderedDict[str, Tensor]]: The keys are the neighbour's `aioxmpp.JID`s and the values are the
+            dict[JID, Dict[str, Tensor]]: The keys are the neighbour's `aioxmpp.JID`s and the values are the
             layer names with the `torch.Tensor` weights or biases.
         """
         return self._assign_layers(
@@ -417,7 +417,7 @@ class PremioFlAgent(AgentNodeBase, metaclass=ABCMeta):
         self,
         neighbour: JID,
         request_reply: bool,
-        layers: OrderedDict[str, Tensor],
+        layers: Dict[str, Tensor],
         thread: None | str = None,
         metadata: None | dict[str, str] = None,
         behaviour: Optional["CyclicBehaviour"] = None,

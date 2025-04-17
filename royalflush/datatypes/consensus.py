@@ -1,7 +1,7 @@
 import copy
 import json
 from datetime import datetime, timezone
-from typing import Any, OrderedDict
+from typing import Any, Dict
 
 from aioxmpp import JID
 from spade.message import Message
@@ -17,7 +17,7 @@ class Consensus:
 
     def __init__(
         self,
-        layers: OrderedDict[str, Tensor],
+        layers: Dict[str, Tensor],
         sender: None | JID = None,
         request_reply: None | bool = None,
         sent_time_z: None | datetime = None,

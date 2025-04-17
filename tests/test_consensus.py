@@ -1,5 +1,4 @@
 import copy
-from typing import OrderedDict
 
 import torch
 
@@ -67,11 +66,11 @@ def test_consensus_update_models():
     max_order = 2
 
     # Define the state dictionaries of two models with tensors of zeros and tens
-    model_state_a = OrderedDict({"weight": torch.zeros((3, 3)), "bias": torch.zeros((3,))})
-    model_state_b = OrderedDict({"weight": torch.full((3, 3), 10.0), "bias": torch.full((3,), 10.0)})
+    model_state_a = dict({"weight": torch.zeros((3, 3)), "bias": torch.zeros((3,))})
+    model_state_b = dict({"weight": torch.full((3, 3), 10.0), "bias": torch.full((3,), 10.0)})
 
     # Expected output after applying consensus
-    expected_model_state = OrderedDict(
+    expected_model_state = dict(
         {
             "weight": torch.full((3, 3), 5.0),
             "bias": torch.full((3,), 5.0),
@@ -103,8 +102,8 @@ def test_consensus_update_layers():
     max_order = 2
 
     # Define the state dictionaries of two models with tensors of zeros and tens
-    model_state_a = OrderedDict({"weight": torch.zeros((3, 3)), "bias": torch.zeros((3,))})
-    layers = OrderedDict({"bias": torch.full((3,), 10.0)})
+    model_state_a = dict({"weight": torch.zeros((3, 3)), "bias": torch.zeros((3,))})
+    layers = dict({"bias": torch.full((3,), 10.0)})
 
     # Expected output after applying consensus
     expected_model_state = {
@@ -137,8 +136,8 @@ def test_initial_model_not_modified_during_consensus():
     max_order = 2
 
     # Define the state dictionaries of two models with tensors of zeros and tens
-    model_state_a = OrderedDict({"weight": torch.zeros((3, 3)), "bias": torch.zeros((3,))})
-    model_state_b = OrderedDict({"weight": torch.full((3, 3), 10.0), "bias": torch.full((3,), 10.0)})
+    model_state_a = dict({"weight": torch.zeros((3, 3)), "bias": torch.zeros((3,))})
+    model_state_b = dict({"weight": torch.full((3, 3), 10.0), "bias": torch.full((3,), 10.0)})
 
     freeze_model_a = copy.deepcopy(model_state_a)
 
@@ -152,7 +151,7 @@ def test_initial_model_not_modified_during_consensus():
     ), "The initial model has been modified during consensus process"
 
     # Define the state dictionaries of two models with tensors of zeros and tens
-    model_state_b = OrderedDict({"weight": torch.full((3, 3), 10.0)})  # Note that bias is not here
+    model_state_b = dict({"weight": torch.full((3, 3), 10.0)})  # Note that bias is not here
 
     _ = ConsensusManager.apply_consensus_to_model_with_layers(
         full_model=model_state_a, layers=model_state_b, max_order=max_order

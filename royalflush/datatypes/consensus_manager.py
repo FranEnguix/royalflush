@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timedelta, timezone
 from queue import Queue
-from typing import Optional, OrderedDict
+from typing import Dict, Optional
 
 from aioxmpp import JID
 from torch import Tensor
@@ -159,11 +159,11 @@ class ConsensusManager:
 
     @staticmethod
     def apply_consensus_to_model_with_layers(
-        full_model: OrderedDict[str, Tensor],
-        layers: OrderedDict[str, Tensor],
+        full_model: Dict[str, Tensor],
+        layers: Dict[str, Tensor],
         max_order: int = 2,
         epsilon_margin: float = 0.05,
-    ) -> OrderedDict[str, Tensor]:
+    ) -> Dict[str, Tensor]:
         """
         Applies a layer-wise consensus operation between a full model and a subset of layers from another agent.
 
@@ -171,15 +171,15 @@ class ConsensusManager:
         `apply_consensus_to_tensors`. Layers not present in the subset remain unchanged.
 
         Args:
-            full_model (OrderedDict[str, Tensor]): The full model from the main agent.
-            layers (OrderedDict[str, Tensor]): A dictionary of layers from another agent to be used for consensus.
+            full_model (Dict[str, Tensor]): The full model from the main agent.
+            layers (Dict[str, Tensor]): A dictionary of layers from another agent to be used for consensus.
             max_order (int, optional): Maximum order of the graph network. Determines the consensus strength. Defaults to 2.
             epsilon_margin (float, optional): Margin to ensure epsilon < 1 / max_order. Defaults to 0.05.
 
         Returns:
-            OrderedDict[str, Tensor]: A new OrderedDict representing the consensuated model.
+            Dict[str, Tensor]: A new Dict representing the consensuated model.
         """
-        consensuated_result: OrderedDict[str, Tensor] = OrderedDict()
+        consensuated_result: Dict[str, Tensor] = {}
         for key in full_model.keys():
             if key in layers:
                 consensuated_result[key] = ConsensusManager.apply_consensus_to_tensors(

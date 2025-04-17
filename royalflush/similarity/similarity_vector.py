@@ -1,7 +1,7 @@
 import copy
 import json
 from datetime import datetime, timezone
-from typing import Any, OrderedDict
+from typing import Any, Dict
 
 from aioxmpp import JID
 from spade.message import Message
@@ -10,7 +10,7 @@ from spade.message import Message
 class SimilarityVector:
     def __init__(
         self,
-        vector: OrderedDict[str, float],  # str is the name of the layer and float is the similarity coefficient
+        vector: Dict[str, float],  # str is the name of the layer and float is the similarity coefficient
         owner: None | JID = None,
         request_reply: None | bool = False,
         algorithm_iteration: None | int = None,
@@ -39,7 +39,7 @@ class SimilarityVector:
     @staticmethod
     def from_message(message: Message) -> "SimilarityVector":
         content: dict[str, Any] = json.loads(message.body)
-        vector: OrderedDict[str, float] = content["vector"]
+        vector: Dict[str, float] = content["vector"]
         request_reply: bool = content["request_reply"]
         algorithm_iteration: int | None = content["algorithm_iteration"] if "algorithm_iteration" in content else None
         sent_time_z: datetime = datetime.strptime(content["sent_time_z"], "%Y-%m-%dT%H:%M:%S.%fZ").replace(

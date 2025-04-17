@@ -12,18 +12,26 @@ royalflush.log.algorithm module
    :undoc-members:
    :show-inheritance:
 
-royalflush.log.convergence module
----------------------------------
-
-.. automodule:: royalflush.log.convergence
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 royalflush.log.csv module
 -------------------------
 
 .. automodule:: royalflush.log.csv
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+royalflush.log.data module
+--------------------------
+
+.. automodule:: royalflush.log.data
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+royalflush.log.filter module
+----------------------------
+
+.. automodule:: royalflush.log.filter
    :members:
    :undoc-members:
    :show-inheritance:

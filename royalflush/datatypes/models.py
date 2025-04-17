@@ -3,7 +3,7 @@ import copy
 import logging
 import pickle
 from datetime import datetime, timezone
-from typing import OrderedDict
+from typing import Dict
 
 import torch
 from torch import Tensor, nn
@@ -53,8 +53,8 @@ class ModelManager:
         self.track_layers_weights: list[str] = [] if track_layers_weights is None else track_layers_weights
         # NOTE when the below NOTE is completed, uncomment: RandomUtils.set_randomness(seed=self.seed)
         # NOTE Ask for a model generator and generate the model here: self.model = generator.get_model(parameters)
-        self.initial_state: OrderedDict[str, Tensor] = copy.deepcopy(model.state_dict())
-        # self.pretrain_state: OrderedDict[str, Tensor] = copy.deepcopy(
+        self.initial_state: Dict[str, Tensor] = copy.deepcopy(model.state_dict())
+        # self.pretrain_state: Dict[str, Tensor] = copy.deepcopy(
         #     self.model.state_dict()
         # )
         self.__training: bool = False
@@ -62,7 +62,7 @@ class ModelManager:
     def is_training(self) -> bool:
         return self.__training
 
-    def replace_all_layers(self, new_layers: OrderedDict[str, Tensor]) -> None:
+    def replace_all_layers(self, new_layers: Dict[str, Tensor]) -> None:
         self.model.load_state_dict(state_dict=new_layers)
 
     def _check_gradients(self) -> None:
@@ -247,8 +247,8 @@ class ModelManager:
         """
         return self._inference(dataloader=self.dataloaders.test)
 
-    def get_layers(self, layers: list[str], deepcopy_layers: bool = False) -> OrderedDict[str, Tensor]:
-        selected_layers: OrderedDict[str, Tensor] = OrderedDict()
+    def get_layers(self, layers: list[str], deepcopy_layers: bool = False) -> Dict[str, Tensor]:
+        selected_layers: Dict[str, Tensor] = Dict()
         for layer in layers:
             if deepcopy_layers:
                 selected_layers[layer] = copy.deepcopy(self.model.state_dict()[layer])
@@ -257,13 +257,13 @@ class ModelManager:
         return selected_layers
 
     @staticmethod
-    def export_layers(layers: OrderedDict[str, Tensor]) -> str:
+    def export_layers(layers: Dict[str, Tensor]) -> str:
         return codecs.encode(pickle.dumps(layers), encoding="base64").decode(encoding="utf-8")
 
     @staticmethod
     def import_layers(
         base64_codified_layers: str,
-    ) -> OrderedDict[str, Tensor]:
+    ) -> Dict[str, Tensor]:
         return pickle.loads(codecs.decode(base64_codified_layers.encode(encoding="utf-8"), encoding="base64"))
 
     def save_model_to_file(self, filepath: str) -> None:

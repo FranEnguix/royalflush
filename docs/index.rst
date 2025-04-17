@@ -8,6 +8,8 @@ Welcome to Royal FLush's documentation!
 
 .. include:: installation.rst
 
+.. include:: quickstart.rst
+
 .. toctree::
    :maxdepth: 2
    :caption: Source code

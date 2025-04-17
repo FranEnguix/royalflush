@@ -1,5 +1,5 @@
 import random
-from typing import OrderedDict
+from typing import Dict
 
 from aioxmpp import JID
 from torch import Tensor
@@ -55,10 +55,10 @@ class MacoflAgent(PremioFlAgent):
         my_vector: None | SimilarityVector,
         neighbours_vectors: dict[JID, SimilarityVector],
         selected_neighbours: list[JID],
-    ) -> dict[JID, OrderedDict[str, Tensor]]:
-        result: dict[JID, OrderedDict[str, Tensor]] = {}
+    ) -> dict[JID, Dict[str, Tensor]]:
+        result: dict[JID, Dict[str, Tensor]] = {}
         for n in neighbours_vectors.keys():
-            layers: OrderedDict[str, Tensor] = OrderedDict()
+            layers: Dict[str, Tensor] = Dict()
             layer_name = random.choice(list(self.model_manager.model.state_dict().keys()))
             layers[layer_name] = self.model_manager.model.state_dict()[layer_name]
             result[n] = layers

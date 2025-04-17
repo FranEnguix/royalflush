@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, OrderedDict
+from typing import TYPE_CHECKING, Dict
 
 from aioxmpp import JID
 from spade.behaviour import CyclicBehaviour
@@ -69,7 +69,7 @@ class LayerReceiverBehaviour(CyclicBehaviour):
     async def send_layers(
         self,
         neighbour: JID,
-        layers: OrderedDict[str, Tensor],
+        layers: Dict[str, Tensor],
         thread: None | str = None,
     ) -> None:
         metadata = {"rf.conversation": "layers"}

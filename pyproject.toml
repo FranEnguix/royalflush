@@ -1,14 +1,15 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=78.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "royalflush"
-version = "0.4.0"
+version = "0.4.1"
 description = "Royal FLush is a Python framework specifically designed to facilitate the development, execution and analysis of multi-agent systems (MAS) federated learning (FL) experiments."
 readme = "README.md"
 keywords = ["royalflush", "artificial intelligence", "multi-agent systems", "intelligent agents", "federated learning", "framework"]
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
   { name = "Francisco Enguix", email = "enguix.fco@gmail.com" },
 ]
@@ -21,7 +22,6 @@ classifiers = [
   "Environment :: Web Environment",
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
@@ -56,8 +56,9 @@ dev = [
     "isort",
     "bump-my-version",
     "pre-commit",
-    "wheel==0.43.0",
-    "twine==5.1.1",
+    "wheel==0.45.1",
+    "twine==6.1.1",
+    "setuptools==78.1.0",
     "build==1.2.1",
     "sphinx==7.1.2",
     "sphinx-rtd-theme",
@@ -69,6 +70,7 @@ test = ["coverage"]
   Documentation = "https://royalflush.readthedocs.io"
   Source = "https://github.com/FranEnguix/royalflush"
   Issues = "https://github.com/FranEnguix/royalflush/issues"
+  Changelog = "https://github.com/FranEnguix/royalflush/blob/main/CHANGELOG.md"
 
 [project.scripts]
 royalflush = "royalflush.cli:cli"
@@ -78,8 +80,6 @@ where = ["."]
 include = ["royalflush*"]
 exclude = ["royalflush.tests*"]
 
-[tool.setuptools.dynamic]
-version = {attr = "royalflush.__version__"}
 
 [tool.black]
 line-length = 120

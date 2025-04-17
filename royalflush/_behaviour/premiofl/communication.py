@@ -1,6 +1,6 @@
 import traceback
 import uuid
-from typing import TYPE_CHECKING, OrderedDict
+from typing import TYPE_CHECKING, Dict
 
 from aioxmpp import JID
 from spade.behaviour import State
@@ -67,7 +67,7 @@ class CommunicationState(State):
     async def send_layers(
         self,
         neighbour: JID,
-        layers: OrderedDict[str, Tensor],
+        layers: Dict[str, Tensor],
     ) -> None:
         metadata = {"rf.conversation": "layers"}
         thread = str(uuid.uuid4())

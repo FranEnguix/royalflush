@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from collections import OrderedDict
+from typing import Dict
 
 import torch
 from torch import Tensor
@@ -12,8 +12,8 @@ class SimilarityFunction(object, metaclass=ABCMeta):
     @abstractmethod
     def get_similarity_vector(
         self,
-        layers1: OrderedDict[str, Tensor],
-        layers2: OrderedDict[str, Tensor],
+        layers1: Dict[str, Tensor],
+        layers2: Dict[str, Tensor],
     ) -> SimilarityVector:
         raise NotImplementedError
 
@@ -22,10 +22,10 @@ class OnesFunction(SimilarityFunction):
 
     def get_similarity_vector(
         self,
-        layers1: OrderedDict[str, Tensor],
-        layers2: OrderedDict[str, Tensor],
+        layers1: Dict[str, Tensor],
+        layers2: Dict[str, Tensor],
     ) -> SimilarityVector:
-        vector: OrderedDict[str, float] = OrderedDict()
+        vector: Dict[str, float] = Dict()
         for layer in layers1:
             if not layer in layers2:
                 raise ValueError(f"Layer {layer} not present in {list(layers2.keys())}.")
@@ -37,10 +37,10 @@ class EuclideanDistanceFunction(SimilarityFunction):
 
     def get_similarity_vector(
         self,
-        layers1: OrderedDict[str, Tensor],
-        layers2: OrderedDict[str, Tensor],
+        layers1: Dict[str, Tensor],
+        layers2: Dict[str, Tensor],
     ) -> SimilarityVector:
-        vector: OrderedDict[str, float] = OrderedDict()
+        vector: Dict[str, float] = Dict()
 
         for layer in layers1:
             if not layer in layers2:

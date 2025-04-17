@@ -2,12 +2,12 @@ import json
 import time
 import unittest
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Dict, Optional
 
 import torch
 from aioxmpp import JID
 from spade.message import Message
-from torch import nn
+from torch import Tensor, nn
 
 from royalflush.datatypes import ModelManager
 from royalflush.datatypes.consensus import Consensus
@@ -65,7 +65,7 @@ class TestConsensusTransmission(unittest.TestCase):
 
     def test_from_message(self):
         model = nn.Linear(10, 5)
-        model_state = model.state_dict()
+        model_state: Dict[str, Tensor] = model.state_dict()
         sender = JID.fromstr("sender@localhost")
         now = datetime.now(tz=timezone.utc)
 
@@ -79,7 +79,7 @@ class TestConsensusTransmission(unittest.TestCase):
 
         # Check that the fields are correctly set
         for key in model_state.keys():
-            assert torch.allclose(received_transmission.layers[key], model_state.get(key))
+            assert torch.allclose(received_transmission.layers[key], model_state[key])
         self.assertEqual(received_transmission.sender, sender)
         self.assertEqual(received_transmission.sent_time_z, consensus_transmission.sent_time_z)
         self.assertIsNotNone(received_transmission.received_time_z)
@@ -88,7 +88,8 @@ class TestConsensusTransmission(unittest.TestCase):
 
         # Check that received_time_z is set and is a datetime with timezone
         self.assertIsInstance(received_transmission.received_time_z, datetime)
-        self.assertIsNotNone(received_transmission.received_time_z.tzinfo)
+        if received_transmission.received_time_z is not None:
+            self.assertIsNotNone(received_transmission.received_time_z.tzinfo)
 
     def test_round_trip(self):
         model = nn.Linear(10, 5)
